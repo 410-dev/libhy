@@ -32,6 +32,12 @@ public abstract class DatabaseObject extends DataObject {
         this(null, sqlConnectionFactoryClass);
     }
 
+    public void setKeys(String pkName, String pkValue, String tableName) {
+        this.pkName = pkName;
+        this.pkValue = pkValue;
+        this.tableName = tableName;
+    }
+
     private void checkKeys() throws UndefinedSQLKeyException {
         if (this.pkName == null) throw new UndefinedSQLKeyException("pkName");
         if (this.pkType == null) throw new UndefinedSQLKeyException("pkType");
