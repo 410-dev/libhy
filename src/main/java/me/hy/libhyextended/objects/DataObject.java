@@ -47,8 +47,6 @@ public abstract class DataObject {
 
         Field[] declaredFields = reflectedClass.getDeclaredFields();
 
-        int mapTicks = 0;
-
         for (Field field : declaredFields) {
             field.setAccessible(true);
             try {
