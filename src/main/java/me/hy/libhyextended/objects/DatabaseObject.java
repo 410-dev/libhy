@@ -23,6 +23,8 @@ public abstract class DatabaseObject extends DataObject {
     @Setter private String pkType;
     @Setter private String tableName;
 
+    public static boolean doPrintQuery = false;
+
     public DatabaseObject(String tableName, Class<?> sqlConnectionFactoryClass) {
         this.sqlConnectionFactory = (Class<SQLConnectionFactory>) sqlConnectionFactoryClass;
         this.tableName = tableName;
@@ -38,10 +40,10 @@ public abstract class DatabaseObject extends DataObject {
         this.tableName = tableName;
     }
 
-    private void checkKeys() throws UndefinedSQLKeyException {
-        if (this.pkName == null) throw new UndefinedSQLKeyException("pkName");
-        if (this.pkType == null) throw new UndefinedSQLKeyException("pkType");
-        if (this.tableName == null) throw new UndefinedSQLKeyException("tableName");
+    private void checkKeys() {
+//        if (this.pkName == null) throw new UndefinedSQLKeyException("pkName");
+//        if (this.pkType == null) throw new UndefinedSQLKeyException("pkType");
+//        if (this.tableName == null) throw new UndefinedSQLKeyException("tableName");
     }
 
     private boolean canSkip(String fieldName) {
@@ -60,38 +62,41 @@ public abstract class DatabaseObject extends DataObject {
         return false;
     }
 
-    public void insert() throws SQLException, IllegalAccessException, UndefinedSQLKeyException {
+    public void insert() throws SQLException {
 
         this.checkKeys();
 
         StringBuilder sql = new StringBuilder("INSERT INTO " + this.getTableName() + " (");
         StringBuilder values = new StringBuilder("VALUES (");
 
-        for (Field field : this.getClass().getDeclaredFields()) {
-            if (canSkip(field.getName())) continue;
-
-            field.setAccessible(true);
-
-            sql.append(field.getName()).append(", ");
-            values.append("'").append(field.get(this)).append("', ");
-        }
-
-        sql.delete(sql.length() - 2, sql.length());
-        values.delete(values.length() - 2, values.length());
-
-        sql.append(") ").append(values).append(");");
-
         try {
+
+            for (Field field : this.getClass().getDeclaredFields()) {
+                if (canSkip(field.getName())) continue;
+
+                field.setAccessible(true);
+
+                sql.append(field.getName()).append(", ");
+                values.append("'").append(field.get(this)).append("', ");
+            }
+
+            sql.delete(sql.length() - 2, sql.length());
+            values.delete(values.length() - 2, values.length());
+
+            sql.append(") ").append(values).append(");");
             SQLConnection connection = sqlConnectionFactory.getDeclaredConstructor().newInstance().getConnection();
             ResultSet rs = connection.executeQuery(sql.toString());
             rs.close();
             connection.close();
+            if (doPrintQuery) System.out.println(sql.toString());
+        }catch (SQLException e) {
+            throw e;
         }catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void delete() throws SQLException, IllegalAccessException, UndefinedSQLKeyException {
+    public void delete() throws SQLException {
 
         this.checkKeys();
 
@@ -102,45 +107,52 @@ public abstract class DatabaseObject extends DataObject {
             ResultSet rs = connection.executeQuery(sql.toString());
             rs.close();
             connection.close();
-        }catch (Exception e) {
+            if (doPrintQuery) System.out.println(sql.toString());
+        }catch (SQLException e) {
+            throw e;
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void update() throws SQLException, IllegalAccessException, UndefinedSQLKeyException {
+    public void update() throws SQLException {
 
         this.checkKeys();
 
         StringBuilder sql = new StringBuilder("UPDATE " + this.getTableName() + " SET ");
 
-        for (Field field : this.getClass().getDeclaredFields()) {
-            if (canSkip(field.getName())) continue;
-
-            field.setAccessible(true);
-
-            sql.append(field.getName()).append(" = '").append(field.get(this)).append("', ");
-        }
-
-        sql.delete(sql.length() - 2, sql.length());
-
-        sql.append(" WHERE ").append(this.getPkName()).append(" = '").append(this.getPkValue()).append("';");
-
         try {
+            for (Field field : this.getClass().getDeclaredFields()) {
+                if (canSkip(field.getName())) continue;
+
+                field.setAccessible(true);
+
+                sql.append(field.getName()).append(" = '").append(field.get(this)).append("', ");
+            }
+
+            sql.delete(sql.length() - 2, sql.length());
+
+            sql.append(" WHERE ").append(this.getPkName()).append(" = '").append(this.getPkValue()).append("';");
+
+
             SQLConnection connection = sqlConnectionFactory.getDeclaredConstructor().newInstance().getConnection();
             ResultSet rs = connection.executeQuery(sql.toString());
             rs.close();
             connection.close();
+            if (doPrintQuery) System.out.println(sql.toString());
+        }catch (SQLException e) {
+            throw e;
         }catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void select() throws SQLException, IllegalAccessException, UndefinedSQLKeyException, DataFieldMismatchException {
+    public void select() throws SQLException, DataFieldMismatchException {
 
         this.checkKeys();
 
         StringBuilder sql = new StringBuilder("SELECT * FROM " + this.getTableName() + " WHERE " + this.getPkName() + " = '" + this.getPkValue() + "' LIMIT 1;");
-
+        if (doPrintQuery) System.out.println(sql.toString());
 
         SQLConnection connection = null;
         try {
@@ -157,6 +169,10 @@ public abstract class DatabaseObject extends DataObject {
             throw new SQLException("No results found for query: " + sql.toString());
         }
 
+        mapFromResultSet(rs);
+    }
+
+    public void mapFromResultSet(ResultSet rs) throws DataFieldMismatchException {
         for (Field field : this.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             try {
@@ -164,6 +180,8 @@ public abstract class DatabaseObject extends DataObject {
                 // Get type
                 Class<?> type = field.getType();
                 String typeName = type.getName().toLowerCase();
+
+                if (canSkip(field.getName())) continue;
 
                 if (typeName.contains("int")) field.set(this, rs.getInt(field.getName()));
                 else if (typeName.contains("string")) field.set(this, rs.getString(field.getName()));
@@ -174,20 +192,6 @@ public abstract class DatabaseObject extends DataObject {
                 else if (typeName.contains("short")) field.set(this, rs.getShort(field.getName()));
                 else if (typeName.contains("byte")) field.set(this, rs.getByte(field.getName()));
                 else if (typeName.contains("char")) field.set(this, rs.getByte(field.getName()));
-                else if (typeName.contains("date")) field.set(this, rs.getDate(field.getName()));
-                else if (typeName.contains("time")) field.set(this, rs.getTime(field.getName()));
-                else if (typeName.contains("timestamp")) field.set(this, rs.getTimestamp(field.getName()));
-                else if (typeName.contains("object")) field.set(this, rs.getObject(field.getName()));
-                else if (typeName.contains("array")) field.set(this, rs.getArray(field.getName()));
-                else if (typeName.contains("blob")) field.set(this, rs.getBlob(field.getName()));
-                else if (typeName.contains("clob")) field.set(this, rs.getClob(field.getName()));
-                else if (typeName.contains("ref")) field.set(this, rs.getRef(field.getName()));
-                else if (typeName.contains("rowid")) field.set(this, rs.getRowId(field.getName()));
-                else if (typeName.contains("sqlxml")) field.set(this, rs.getSQLXML(field.getName()));
-                else if (typeName.contains("nclob")) field.set(this, rs.getNClob(field.getName()));
-                else if (typeName.contains("nstring")) field.set(this, rs.getNString(field.getName()));
-                else if (typeName.contains("null")) field.set(this, rs.getNString(field.getName()));
-                else if (typeName.contains("url")) field.set(this, rs.getURL(field.getName()));
                 else if (type.getSuperclass().getName().equals(DataObject.class.getName())) {
                     JsonObject object = JsonParser.parseString(rs.getString(field.getName())).getAsJsonObject();
                     DataObject dataObject = (DataObject) type.getDeclaredConstructor().newInstance();
@@ -203,5 +207,4 @@ public abstract class DatabaseObject extends DataObject {
             }
         }
     }
-
 }
