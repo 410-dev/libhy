@@ -1,0 +1,7 @@
+
+*.jar
+*.class
+*.DS_Store
+.idea/*
+out/*
+target/*
