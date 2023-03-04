@@ -1,9 +1,11 @@
 package me.hy.libhyextended.objects;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.hy.libhyextended.objects.exception.DataFieldMismatchException;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 public abstract class DataObject {
 
@@ -26,6 +28,17 @@ public abstract class DataObject {
                 else if (typeName.contains("double"))     json.addProperty(field.getName(), Double.parseDouble(field.get(this).toString()));
                 else if (typeName.contains("long"))       json.addProperty(field.getName(), Long.parseLong(field.get(this).toString()));
                 else if (typeName.contains("bool"))       json.addProperty(field.getName(), Boolean.parseBoolean(field.get(this).toString()));
+                else if (typeName.contains("arraylist")) {
+                    JsonArray array = new JsonArray();
+                    for (Object o : (ArrayList<?>) field.get(this)) {
+                        if (o instanceof DataObject) {
+                            array.add(((DataObject) o).toJson());
+                        } else {
+                            array.add(o.toString());
+                        }
+                    }
+                    json.add(field.getName(), array);
+                }
                 else if (type.getSuperclass().getName().equals(DataObject.class.getName())) json.add(field.getName(), ((DataObject) field.get(this)).toJson());
                 else                                      json.addProperty(field.getName(), field.get(this).toString());
 
