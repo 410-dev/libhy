@@ -2,12 +2,16 @@ package me.hy.libhyextended.javaui;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputAdapter;
 
-import java.awt.Component;
+import java.awt.*;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
+import me.hy.libhyextended.javaui.components.UIElement;
 import me.hy.libhyextended.javaui.components.UIScene;
 import me.hy.libhyextended.javaui.components.organizers.UIContainerElement;
+import me.hy.libhyextended.javaui.components.organizers.UIPanel;
 import me.hy.libhyextended.javaui.components.organizers.UIStack;
 import me.hy.libhyextended.javaui.properties.UIWindowProperty;
 
@@ -41,6 +45,10 @@ public class UIWindow {
         this.windowName = windowName;
     }
 
+    public UIPanel getContainer() {
+        return (UIPanel) contentPane;
+    }
+
     public UIWindow loadScene(UIScene s) {
         currentScene = s;
         s.onLoad();
@@ -61,6 +69,16 @@ public class UIWindow {
         return loadQueuedScenes();
     }
 
+    public UIWindowProperty getWindowProperty() {
+        return new UIWindowProperty(windowName)
+                .width(frame.getWidth())
+                .height(frame.getHeight())
+                .title(frame.getTitle())
+                .visible(frame.isVisible())
+                .x(frame.getX())
+                .y(frame.getY());
+    }
+
     public UIWindow loadScene(JPanel p) {
         unloadScene();
         p.setSize(frame.getWidth(), frame.getHeight());
@@ -68,7 +86,7 @@ public class UIWindow {
         return this;
     }
 
-    public UIWindow loadSceneAfterCurrentSceneLoading(UIScene s) {
+    public UIWindow queueScene(UIScene s) {
         queuedScenes.add(s);
         return this;
     }
