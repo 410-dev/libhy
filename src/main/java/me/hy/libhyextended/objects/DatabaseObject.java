@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
 import lombok.Setter;
+import me.hy.libhycore.CoreLogger;
 import me.hy.libhyextended.objects.exception.UndefinedSQLKeyException;
 import me.hy.libhyextended.sql.SQLConnection;
 
@@ -13,11 +14,13 @@ import me.hy.libhyextended.objects.exception.DataFieldMismatchException;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @Getter
 public abstract class DatabaseObject extends DataObject {
 
     private Class<SQLConnectionFactory> sqlConnectionFactory;
+    private ArrayList<String> nonColumnFields = new ArrayList<>();
     @Setter private String pkName;
     @Setter private String pkValue;
     @Setter private String pkType;
@@ -30,8 +33,24 @@ public abstract class DatabaseObject extends DataObject {
         this.tableName = tableName;
     }
 
+
     public DatabaseObject(Class<?> sqlConnectionFactoryClass) {
         this(null, sqlConnectionFactoryClass);
+    }
+
+    public static <T> ArrayList<?> buildListFromResultSet(ResultSet rs, Class<T> clazz) throws SQLException, DataFieldMismatchException {
+        ArrayList<T> list = new ArrayList<>();
+        while (rs.next()) {
+            try {
+                DatabaseObject object = (DatabaseObject) clazz.getDeclaredConstructor().newInstance();
+                object.mapFromResultSet(rs);
+                list.add(clazz.cast(object));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
     }
 
     public void setKeys(String pkName, String pkValue, String tableName) {
@@ -43,7 +62,11 @@ public abstract class DatabaseObject extends DataObject {
     private void checkKeys() {
 //        if (this.pkName == null) throw new UndefinedSQLKeyException("pkName");
 //        if (this.pkType == null) throw new UndefinedSQLKeyException("pkType");
-//        if (this.tableName == null) throw new UndefinedSQLKeyException("tableName");
+//        if (this.tabl`eName == null) throw new UndefinedSQLKeyException("tableName");
+    }
+
+    public void addNonColumnField(String fieldName) {
+        this.nonColumnFields.add(fieldName);
     }
 
     private boolean canSkip(String fieldName) {
@@ -59,6 +82,11 @@ public abstract class DatabaseObject extends DataObject {
         for (String skippableFieldName : skippableFieldNames) {
             if (skippableFieldName.equals(fieldName)) return true;
         }
+
+        for (String nonColumnField : nonColumnFields) {
+            if (nonColumnField.equals(fieldName)) return true;
+        }
+
         return false;
     }
 
@@ -104,8 +132,7 @@ public abstract class DatabaseObject extends DataObject {
 
         try {
             SQLConnection connection = sqlConnectionFactory.getDeclaredConstructor().newInstance().getConnection();
-            ResultSet rs = connection.executeQuery(sql.toString());
-            rs.close();
+            connection.executeUpdate(sql.toString());
             connection.close();
             if (doPrintQuery) System.out.println(sql.toString());
         }catch (SQLException e) {
@@ -136,8 +163,7 @@ public abstract class DatabaseObject extends DataObject {
 
 
             SQLConnection connection = sqlConnectionFactory.getDeclaredConstructor().newInstance().getConnection();
-            ResultSet rs = connection.executeQuery(sql.toString());
-            rs.close();
+            connection.executeUpdate(sql.toString());
             connection.close();
             if (doPrintQuery) System.out.println(sql.toString());
         }catch (SQLException e) {
@@ -172,7 +198,10 @@ public abstract class DatabaseObject extends DataObject {
         mapFromResultSet(rs);
     }
 
-    public void mapFromResultSet(ResultSet rs) throws DataFieldMismatchException {
+    public void mapFromResultSet(ResultSet rs) throws DataFieldMismatchException, SQLException {
+        if (rs.isClosed()) {
+            CoreLogger.debug(CoreLogger.EventType.ERROR, "ResultSet is closed!");
+        }
         for (Field field : this.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             try {
@@ -198,11 +227,10 @@ public abstract class DatabaseObject extends DataObject {
                     dataObject.fromJson(object);
                     field.set(this, dataObject);
                 }
-                else System.out.println("Unknown type: " + typeName + " with type " + type.isAssignableFrom(DataObject.class));
+                else CoreLogger.debug(CoreLogger.EventType.ERROR, "Unknown type: " + typeName + " with type " + type.getName().toLowerCase());
 
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Failed to import " + field.getName() + " from Json.");
+                CoreLogger.debug(CoreLogger.EventType.ERROR, "Failed to import " + field.getName() + " from Json.");
                 throw new DataFieldMismatchException(e);
             }
         }
