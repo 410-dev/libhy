@@ -22,6 +22,11 @@ public class SQLConnection {
 
     private Connection connection;
 
+    private static boolean printDebug = false;
+    public static void setPrintDebug(boolean printDebug) {
+        SQLConnection.printDebug = printDebug;
+    }
+
     public SQLConnection(String databaseName, String username, String password) {
         this.databaseName = databaseName;
         this.username = username;
@@ -44,8 +49,9 @@ public class SQLConnection {
 
     private void buildSQLiteConnection() throws SQLException {
         try {
+            if (databaseName != null && !databaseName.equals("")) throw new RuntimeException("SQLite does not support database name!");
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseName);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + address);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             System.exit(81);
@@ -54,7 +60,7 @@ public class SQLConnection {
         }
     }
 
-    public ResultSet executeQuery(String query, Object... parameters) throws SQLException {
+    public PreparedStatement buildPrepareStatement(String query, Object... parameters) throws SQLException {
         if (useSQLite) {
             buildSQLiteConnection();
         } else {
@@ -66,8 +72,38 @@ public class SQLConnection {
                 preparedStatement.setObject(i + 1, parameters[i]);
             }
         }
+
+        if (printDebug) {
+            String buildQuery = query;
+            if (parameters != null) {
+                for (Object parameter : parameters) {
+                    buildQuery = buildQuery.replaceFirst("\\?", parameter.toString());
+                }
+            }
+            CoreLogger.debug(CoreLogger.EventType.INFO, "Query: " + buildQuery.replaceAll("\\n","\\\\n"));
+        }
+
+        return preparedStatement;
+    }
+
+    public void executeUpdate(String query, Object... parameters) throws SQLException {
+        PreparedStatement preparedStatement = buildPrepareStatement(query, parameters);
+        if (useAutoClose) autoClose();
+        preparedStatement.executeUpdate();
+    }
+
+    public ResultSet executeQuery(String query, Object... parameters) throws SQLException {
+        PreparedStatement preparedStatement = buildPrepareStatement(query, parameters);
         if (useAutoClose) autoClose();
         return preparedStatement.executeQuery();
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
     }
 
     public void close() throws SQLException {
