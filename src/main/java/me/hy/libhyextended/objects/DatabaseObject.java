@@ -113,8 +113,7 @@ public abstract class DatabaseObject extends DataObject {
 
             sql.append(") ").append(values).append(");");
             SQLConnection connection = sqlConnectionFactory.getDeclaredConstructor().newInstance().getConnection();
-            ResultSet rs = connection.executeQuery(sql.toString());
-            rs.close();
+            connection.executeUpdate(sql.toString());
             connection.close();
             if (doPrintQuery) System.out.println(sql.toString());
         }catch (SQLException e) {
