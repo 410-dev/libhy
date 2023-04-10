@@ -1,13 +1,54 @@
 package me.hy.libhyextended.objects;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.hy.libhyextended.objects.exception.DataFieldMismatchException;
 
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public abstract class DataObject {
+
+    public JsonObject toJsonRecursive(String label, String typeName, Object value, JsonObject json) {
+
+        if (typeName.equals(int.class.getName()) || typeName.equals(Integer.class.getName()))             json.addProperty(label, Integer.parseInt(value.toString()));
+        else if (typeName.equals(float.class.getName()) || typeName.equals(Float.class.getName()))        json.addProperty(label, Float.parseFloat(value.toString()));
+        else if (typeName.equals(double.class.getName()) || typeName.equals(Double.class.getName()))      json.addProperty(label, Double.parseDouble(value.toString()));
+        else if (typeName.equals(long.class.getName())  || typeName.equals(Long.class.getName()))         json.addProperty(label, Long.parseLong(value.toString()));
+        else if (typeName.equals(boolean.class.getName()) || typeName.equals(Boolean.class.getName()))    json.addProperty(label, Boolean.parseBoolean(value.toString()));
+        else if (typeName.equals(short.class.getName()) || typeName.equals(Short.class.getName()))        json.addProperty(label, Short.parseShort(value.toString()));
+        else if (typeName.equals(byte.class.getName()) || typeName.equals(Byte.class.getName()))          json.addProperty(label, Byte.parseByte(value.toString()));
+        else if (typeName.equals(char.class.getName()) || typeName.equals(Character.class.getName()))     json.addProperty(label, value.toString().charAt(0));
+        else if (typeName.equals(String.class.getName()))                                                 json.addProperty(label, value.toString());
+        else if (typeName.equals(ArrayList.class.getName()) || typeName.equals(List.class.getName())) {
+            JsonArray array = new JsonArray();
+            for (Object o : (ArrayList<?>) value) {
+                JsonObject object = toJsonRecursive(label, o.getClass().getName(), o, new JsonObject());
+                array.add(object.get(label));
+            }
+            json.add(label, array);
+        }
+        else if (typeName.equals(HashMap.class.getName())) {
+            JsonArray array = new JsonArray();
+            for (Object o : ((HashMap<?, ?>) value).keySet()) {
+                JsonObject object = toJsonRecursive(o.toString(), ((HashMap<?, ?>) value).get(o).getClass().getName(), ((HashMap<?, ?>) value).get(o), new JsonObject());
+                array.add(object);
+            }
+            json.add(label, array);
+        }
+        else if (typeName.equals(JsonArray.class.getName()))                                            json.add(label, (JsonArray) value);
+        else if (typeName.equals(JsonObject.class.getName()))                                           json.add(label, (JsonObject) value);
+        else if (value.getClass().getSuperclass().getName().equals(DataObject.class.getName())) json.add(label, ((DataObject) value).toJson());
+        else                                      json.addProperty(label, value.toString());
+
+        return json;
+    }
 
     public JsonObject toJson() {
         Class<?> reflectedClass = this.getClass();
@@ -21,27 +62,9 @@ public abstract class DataObject {
             try {
                 // Get type
                 Class<?> type = field.getType();
-                String typeName = type.getName().toLowerCase();
+                String typeName = type.getName();
 
-                if (typeName.contains("int"))             json.addProperty(field.getName(), Integer.parseInt(field.get(this).toString()));
-                else if (typeName.contains("float"))      json.addProperty(field.getName(), Float.parseFloat(field.get(this).toString()));
-                else if (typeName.contains("double"))     json.addProperty(field.getName(), Double.parseDouble(field.get(this).toString()));
-                else if (typeName.contains("long"))       json.addProperty(field.getName(), Long.parseLong(field.get(this).toString()));
-                else if (typeName.contains("bool"))       json.addProperty(field.getName(), Boolean.parseBoolean(field.get(this).toString()));
-                else if (typeName.contains("arraylist")) {
-                    JsonArray array = new JsonArray();
-                    for (Object o : (ArrayList<?>) field.get(this)) {
-                        if (o instanceof DataObject) {
-                            array.add(((DataObject) o).toJson());
-                        } else {
-                            array.add(o.toString());
-                        }
-                    }
-                    json.add(field.getName(), array);
-                }
-                else if (type.getSuperclass().getName().equals(DataObject.class.getName())) json.add(field.getName(), ((DataObject) field.get(this)).toJson());
-                else                                      json.addProperty(field.getName(), field.get(this).toString());
-
+                toJsonRecursive(field.getName(), typeName, field.get(this), json);
             }catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Failed to export " + field.getName() + " to Json.");
@@ -49,6 +72,11 @@ public abstract class DataObject {
         }
 
         return json;
+    }
+
+    public String toJsonString() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(toJson());
     }
 
     public String toString() {
