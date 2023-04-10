@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="libhycore">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../libhycore/out/artifacts/libhycore_jar/libhycore.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
