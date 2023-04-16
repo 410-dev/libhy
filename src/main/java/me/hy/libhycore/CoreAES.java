@@ -16,8 +16,23 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
+/**
+ * Simple AES encryption and decryption.
+ */
 public class CoreAES {
 
+    /**
+     * Encrypts a string using AES encryption. The key is hashed using SHA-512 and then truncated to 16 bytes.
+     * @param input String to encrypt using AES. This is equivalent to plain text.
+     * @param keyStr Key to use for encryption. This is equivalent to password.
+     * @return Encrypted string
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws InvalidInputException
+     */
     public static String encrypt(String input, String keyStr) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidInputException {
 
         if (input == null || keyStr == null) {
@@ -50,6 +65,19 @@ public class CoreAES {
         return encryptedString;
     }
 
+    /**
+     * Decrypts a string using AES encryption. The key is hashed using SHA-512 and then truncated to 16 bytes.
+     * @param input String to decrypt using AES. This is equivalent to cipher text.
+     * @param keyStr Key to use for decryption. This is equivalent to password.
+     * @return Decrypted string
+     * @throws UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws InvalidInputException
+     */
     public static String decrypt(String input, String keyStr) throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidInputException {
 
         if (input == null || keyStr == null) {
@@ -81,4 +109,11 @@ public class CoreAES {
 
         return decryptedString;
     }
+
+    /**
+     * @deprecated
+     * Do not use this constructor. It does not have any functionality.
+     */
+    @Deprecated
+    public CoreAES() {}
 }

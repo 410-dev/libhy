@@ -7,7 +7,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+/**
+ * Interface for objects that can be converted to JSON. This is used to DataObject.
+ */
 public interface JSONCompatibleObject {
+
+    /**
+     * Converts the object to a JsonObject using reflection.
+     * @param object The object to convert.
+     * @return The JsonObject.
+     */
     public default JsonObject toJsonObject(JSONCompatibleObject object) {
         JsonObject toReturn = new JsonObject();
         JsonObject data = new JsonObject();
@@ -53,6 +62,17 @@ public interface JSONCompatibleObject {
         return toReturn;
     }
 
+
+    /**
+     * Converts a JsonObject to an object using reflection.
+     * @param jsonObject The JsonObject to convert.
+     * @return The converted object.
+     * @throws ClassNotFoundException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     */
     public default Object fromJsonObject(JsonObject jsonObject) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<?> obj = Class.forName(jsonObject.get("class").getAsString());
         Object instance = obj.getDeclaredConstructor().newInstance();
