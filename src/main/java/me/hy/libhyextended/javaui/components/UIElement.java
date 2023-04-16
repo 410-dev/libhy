@@ -27,12 +27,15 @@ public interface UIElement {
     public UIElement center(UIContainerElement parentComponent);
     public UIElement action(MouseInputAdapter onclickevent);
     public UIElement action(KeyListener onkeyevent);
+    public UIElement dilate(float width, float height);
+    public UIElement dilate(float width, float height, int x, int y);
+    public UIElement dilate(float by);
 
     // Getters
-    public int getX();
-    public int getY();
-    public int getWidth();
-    public int getHeight();
-    public Color getColor();
-    public String getName();
+    public int x();
+    public int y();
+    public int width();
+    public int height();
+    public Color color();
+    public String name();
 }
