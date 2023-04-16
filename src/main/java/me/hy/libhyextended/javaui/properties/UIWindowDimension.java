@@ -34,9 +34,17 @@ public class UIWindowDimension {
         return this;
     }
 
+    public int x() {
+        return this.x;
+    }
+
     public UIWindowDimension y(int y) {
         this.y = y;
         return this;
+    }
+
+    public int y() {
+        return this.y;
     }
 
     public UIWindowDimension location(int x, int y) {
@@ -45,9 +53,17 @@ public class UIWindowDimension {
         return this;
     }
 
+    public int[] location() {
+        return new int[] {this.x, this.y};
+    }
+
     public UIWindowDimension width(int width) {
         this.width = width;
         return this;
+    }
+
+    public int width() {
+        return this.width;
     }
 
     public UIWindowDimension height(int height) {
@@ -55,10 +71,18 @@ public class UIWindowDimension {
         return this;
     }
 
+    public int height() {
+        return this.height;
+    }
+
     public UIWindowDimension size(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
+    }
+
+    public int[] size() {
+        return new int[] {this.width, this.height};
     }
 }
 

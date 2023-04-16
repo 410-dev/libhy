@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 
+import me.hy.libhyextended.javaui.components.UIButton;
 import me.hy.libhyextended.javaui.components.UIElement;
 import me.hy.libhyextended.javaui.components.UINonContainerElement;
 import lombok.Getter;
@@ -78,11 +79,11 @@ public class UIStack extends JPanel implements UIContainerElement {
             int width = 0;
             int height = 0;
             if (type == UIStack.VERTICAL) {
-                width = this.getWidth() - (offset * 2);
-                height = this.getHeight() / componentList.size() - (offset * 2);
+                width = this.width() - (offset * 2);
+                height = this.height() / componentList.size() - (offset * 2);
             }else if (type == UIStack.HORIZONTAL) {
-                width = this.getWidth() / componentList.size() - (offset * 2);
-                height = this.getHeight() - (offset * 2);
+                width = this.width() / componentList.size() - (offset * 2);
+                height = this.height() - (offset * 2);
             }else{
                 throw new RuntimeException("Invalid type for stack");
             }
@@ -126,67 +127,67 @@ public class UIStack extends JPanel implements UIContainerElement {
 
     @Override
     public UIStack width(int width) {
-        setSize(width, getHeight());
+        setSize(width, height());
         return this;
     }
 
     @Override
     public UIStack height(int height) {
-        setSize(getWidth(), height);
+        setSize(width(), height);
         return this;
     }
 
     @Override
     public UIStack x(int x) {
-        setLocation(x, getY());
+        setLocation(x, y());
         return this;
     }
 
     @Override
     public UIStack y(int y) {
-        setLocation(getX(), y);
+        setLocation(x(), y);
         return this;
     }
 
     @Override
     public UIStack top(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() + offset, parentComponent.getY());
+        setLocation(parentComponent.x() + parentComponent.width() + offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIStack bottom(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() + offset, parentComponent.getY() + parentComponent.getHeight());
+        setLocation(parentComponent.x() + parentComponent.width() + offset, parentComponent.y() + parentComponent.height());
         return this;
     }
 
     @Override
     public UIStack left(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() - getWidth() - offset, parentComponent.getY());
+        setLocation(parentComponent.x() - width() - offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIStack right(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() + offset, parentComponent.getY());
+        setLocation(parentComponent.x() + parentComponent.width() + offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIStack centerHorizontal(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() / 2 - getWidth() / 2 + offset, parentComponent.getY());
+        setLocation(parentComponent.x() + parentComponent.width() / 2 - width() / 2 + offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIStack centerVertical(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() / 2 - getWidth() / 2 + offset, parentComponent.getY());
+        setLocation(parentComponent.x() + parentComponent.width() / 2 - width() / 2 + offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIStack center(UIContainerElement parentComponent) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() / 2 - getWidth() / 2, parentComponent.getY() + parentComponent.getHeight() / 2 - getHeight() / 2);
+        setLocation(parentComponent.x() + parentComponent.width() / 2 - width() / 2, parentComponent.y() + parentComponent.height() / 2 - height() / 2);
         return this;
     }
 
@@ -203,28 +204,84 @@ public class UIStack extends JPanel implements UIContainerElement {
     }
 
     @Override
-    public int getX() {
-        return super.getX();
+    public UIStack dilate(float width, float height) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * width);
+        int newHeight = (int) (this.getHeight() * height);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset, this.getY() - yOffset);
+
+        return this;
     }
 
     @Override
-    public int getY() {
-        return super.getY();
+    public UIStack dilate(float width, float height, int x, int y) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * width);
+        int newHeight = (int) (this.getHeight() * height);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed and shift it
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset + x, this.getY() - yOffset + y);
+
+        return this;
     }
 
     @Override
-    public int getWidth() {
-        return super.getWidth();
+    public UIStack dilate(float by) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * by);
+        int newHeight = (int) (this.getHeight() * by);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset, this.getY() - yOffset);
+
+        return this;
     }
 
     @Override
-    public int getHeight() {
-        return super.getHeight();
+    public int x() {
+        return getX();
     }
 
     @Override
-    public Color getColor() {
+    public int y() {
+        return getY();
+    }
+
+    @Override
+    public int width() {
+        return getWidth();
+    }
+
+    @Override
+    public int height() {
+        return getHeight();
+    }
+
+    @Override
+    public Color color() {
         return getBackground();
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     @Override
@@ -274,11 +331,10 @@ public class UIStack extends JPanel implements UIContainerElement {
     @Override
     public UIElement getComponent(String name) {
         for (UIElement element : componentList) {
-            if (element.getName().equals(name)) {
+            if (element.name().equals(name)) {
                 return element;
             }
         }
         return null;
     }
-
 }

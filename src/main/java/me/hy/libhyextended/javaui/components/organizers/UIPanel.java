@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 
+import me.hy.libhyextended.javaui.components.UIButton;
 import me.hy.libhyextended.javaui.components.UIElement;
 import lombok.Getter;
 
@@ -87,43 +88,43 @@ public class UIPanel extends JPanel implements UIContainerElement {
 
     @Override
     public UIPanel top(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() + offset, parentComponent.getY());
+        setLocation(parentComponent.x() + parentComponent.width() + offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIPanel bottom(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() + offset, parentComponent.getY() + parentComponent.getHeight());
+        setLocation(parentComponent.x() + parentComponent.width() + offset, parentComponent.y() + parentComponent.height());
         return this;
     }
 
     @Override
     public UIPanel left(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() - getWidth() - offset, parentComponent.getY());
+        setLocation(parentComponent.x() - getWidth() - offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIPanel right(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() + offset, parentComponent.getY());
+        setLocation(parentComponent.x() + parentComponent.width() + offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIPanel centerHorizontal(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() / 2 - getWidth() / 2 + offset, parentComponent.getY());
+        setLocation(parentComponent.x() + parentComponent.width() / 2 - getWidth() / 2 + offset, parentComponent.y());
         return this;
     }
 
     @Override
     public UIPanel centerVertical(UIContainerElement parentComponent, int offset) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() / 2 - getWidth() / 2 + offset, parentComponent.getY() + parentComponent.getHeight() / 2 - getHeight() / 2);
+        setLocation(parentComponent.x() + parentComponent.width() / 2 - getWidth() / 2 + offset, parentComponent.y() + parentComponent.height() / 2 - getHeight() / 2);
         return this;
     }
 
     @Override
     public UIPanel center(UIContainerElement parentComponent) {
-        setLocation(parentComponent.getX() + parentComponent.getWidth() / 2 - getWidth() / 2, parentComponent.getY() + parentComponent.getHeight() / 2 - getHeight() / 2);
+        setLocation(parentComponent.x() + parentComponent.width() / 2 - getWidth() / 2, parentComponent.y() + parentComponent.height() / 2 - getHeight() / 2);
         return this;
     }
 
@@ -140,8 +141,13 @@ public class UIPanel extends JPanel implements UIContainerElement {
     }
 
     @Override
-    public Color getColor() {
+    public Color color() {
         return getBackground();
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     @Override
@@ -178,10 +184,82 @@ public class UIPanel extends JPanel implements UIContainerElement {
     @Override
     public UIElement getComponent(String name) {
         for (UIElement element : elements) {
-            if (element.getName().equals(name)) {
+            if (element.name().equals(name)) {
                 return element;
             }
         }
         return null;
+    }
+
+
+    @Override
+    public int x() {
+        return getX();
+    }
+
+    @Override
+    public int y() {
+        return getY();
+    }
+
+    @Override
+    public int width() {
+        return getWidth();
+    }
+
+    @Override
+    public int height() {
+        return getHeight();
+    }
+
+    @Override
+    public UIPanel dilate(float width, float height) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * width);
+        int newHeight = (int) (this.getHeight() * height);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset, this.getY() - yOffset);
+
+        return this;
+    }
+
+    @Override
+    public UIPanel dilate(float width, float height, int x, int y) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * width);
+        int newHeight = (int) (this.getHeight() * height);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed and shift it
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset + x, this.getY() - yOffset + y);
+
+        return this;
+    }
+
+    @Override
+    public UIPanel dilate(float by) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * by);
+        int newHeight = (int) (this.getHeight() * by);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset, this.getY() - yOffset);
+
+        return this;
     }
 }

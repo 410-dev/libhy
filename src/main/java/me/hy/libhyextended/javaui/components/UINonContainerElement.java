@@ -10,7 +10,7 @@ public interface UINonContainerElement extends UIElement {
     public UINonContainerElement bold(boolean bold);
     public UINonContainerElement italic(boolean italic);
 
-    public Font getFont();
-    public String getText();
+    public Font font();
+    public String text();
     
 }

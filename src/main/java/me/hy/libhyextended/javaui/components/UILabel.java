@@ -70,6 +70,16 @@ public class UILabel extends JLabel implements UINonContainerElement {
     }
 
     @Override
+    public Font font() {
+        return null;
+    }
+
+    @Override
+    public String text() {
+        return null;
+    }
+
+    @Override
     public UILabel color(Color color) {
         setForeground(color);
         return this;
@@ -166,8 +176,13 @@ public class UILabel extends JLabel implements UINonContainerElement {
     }
 
     @Override
-    public Color getColor() {
+    public Color color() {
         return getForeground();
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     @Override
@@ -180,5 +195,77 @@ public class UILabel extends JLabel implements UINonContainerElement {
     public UILabel visible(boolean visible) {
         setVisible(visible);
         return this;
+    }
+
+    @Override
+    public UILabel dilate(float width, float height) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * width);
+        int newHeight = (int) (this.getHeight() * height);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset, this.getY() - yOffset);
+
+        return this;
+    }
+
+    @Override
+    public UILabel dilate(float width, float height, int x, int y) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * width);
+        int newHeight = (int) (this.getHeight() * height);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed and shift it
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset + x, this.getY() - yOffset + y);
+
+        return this;
+    }
+
+    @Override
+    public UILabel dilate(float by) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * by);
+        int newHeight = (int) (this.getHeight() * by);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset, this.getY() - yOffset);
+
+        return this;
+    }
+
+
+    @Override
+    public int x() {
+        return getX();
+    }
+
+    @Override
+    public int y() {
+        return getY();
+    }
+
+    @Override
+    public int width() {
+        return getWidth();
+    }
+
+    @Override
+    public int height() {
+        return getHeight();
     }
 }

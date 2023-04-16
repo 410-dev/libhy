@@ -90,6 +90,11 @@ public class UIImage extends JPanel implements UINonContainerElement {
     public UIImage italic(boolean italic) {return null;}
 
     @Override
+    public Font font() {
+        return null;
+    }
+
+    @Override
     public UIImage color(Color color) {
         setBackground(color);
         return this;
@@ -142,7 +147,7 @@ public class UIImage extends JPanel implements UINonContainerElement {
 
     @Override
     public UIImage bottom(UIContainerElement parentComponent, int offset) {
-        setLocation(getX(), ((Component) parentComponent).getY() + parentComponent.getHeight() + offset);
+        setLocation(getX(), ((Component) parentComponent).getY() + parentComponent.height() + offset);
         return this;
     }
 
@@ -154,25 +159,25 @@ public class UIImage extends JPanel implements UINonContainerElement {
 
     @Override
     public UIImage right(UIContainerElement parentComponent, int offset) {
-        setLocation(((Component) parentComponent).getX() + parentComponent.getWidth() + offset, getY());
+        setLocation(((Component) parentComponent).getX() + parentComponent.width() + offset, getY());
         return this;
     }
 
     @Override
     public UIImage centerHorizontal(UIContainerElement parentComponent, int offset) {
-        setLocation(((Component) parentComponent).getX() + parentComponent.getWidth() / 2 - getWidth() / 2 + offset, getY());
+        setLocation(((Component) parentComponent).getX() + parentComponent.width() / 2 - getWidth() / 2 + offset, getY());
         return this;
     }
 
     @Override
     public UIImage centerVertical(UIContainerElement parentComponent, int offset) {
-        setLocation(getX(), ((Component) parentComponent).getY() + parentComponent.getHeight() / 2 - getHeight() / 2 + offset);
+        setLocation(getX(), ((Component) parentComponent).getY() + parentComponent.height() / 2 - getHeight() / 2 + offset);
         return this;
     }
 
     @Override
     public UIImage center(UIContainerElement parentComponent) {
-        setLocation(((Component) parentComponent).getX() + parentComponent.getWidth() / 2 - getWidth() / 2, ((Component) parentComponent).getY() + parentComponent.getHeight() / 2 - getHeight() / 2);
+        setLocation(((Component) parentComponent).getX() + parentComponent.width() / 2 - getWidth() / 2, ((Component) parentComponent).getY() + parentComponent.height() / 2 - getHeight() / 2);
         return this;
     }
 
@@ -189,13 +194,18 @@ public class UIImage extends JPanel implements UINonContainerElement {
     }
 
     @Override
-    public Color getColor() {
+    public Color color() {
         return getBackground();
     }
 
     @Override
+    public String name() {
+        return name;
+    }
+
+    @Override
     @Deprecated
-    public String getText() {
+    public String text() {
         return null;
     }
 
@@ -209,5 +219,77 @@ public class UIImage extends JPanel implements UINonContainerElement {
     public UIImage visible(boolean visible) {
         setVisible(visible);
         return this;
+    }
+
+    @Override
+    public UIImage dilate(float width, float height) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * width);
+        int newHeight = (int) (this.getHeight() * height);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset, this.getY() - yOffset);
+
+        return this;
+    }
+
+    @Override
+    public UIImage dilate(float width, float height, int x, int y) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * width);
+        int newHeight = (int) (this.getHeight() * height);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed and shift it
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset + x, this.getY() - yOffset + y);
+
+        return this;
+    }
+
+    @Override
+    public UIImage dilate(float by) {
+        // Calculate the new width and height of the button after dilation
+        int newWidth = (int) (this.getWidth() * by);
+        int newHeight = (int) (this.getHeight() * by);
+
+        // Calculate the offset to keep the center of the button fixed
+        int xOffset = (newWidth - this.getWidth()) / 2;
+        int yOffset = (newHeight - this.getHeight()) / 2;
+
+        // Update the size and location of the button to keep the center fixed
+        this.size(newWidth, newHeight);
+        this.location(this.getX() - xOffset, this.getY() - yOffset);
+
+        return this;
+    }
+
+
+    @Override
+    public int x() {
+        return getX();
+    }
+
+    @Override
+    public int y() {
+        return getY();
+    }
+
+    @Override
+    public int width() {
+        return getWidth();
+    }
+
+    @Override
+    public int height() {
+        return getHeight();
     }
 }

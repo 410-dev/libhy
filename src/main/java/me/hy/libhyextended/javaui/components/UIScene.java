@@ -40,7 +40,7 @@ public class UIScene {
     public UIElement getComponent(String name) {
         for (Object element : components) {
             if (element instanceof UIElement) {
-                if (((UIElement) element).getName().equals(name)) {
+                if (((UIElement) element).name().equals(name)) {
                     return (UIElement) element;
                 }
             }
