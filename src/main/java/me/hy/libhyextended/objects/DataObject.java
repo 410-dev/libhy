@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.hy.libhyextended.objects.exception.DataFieldMismatchException;
+import me.hy.libhyextended.utils.ArrayToJsonArrayConverter;
 
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -44,6 +45,17 @@ public abstract class DataObject {
         }
         else if (typeName.equals(JsonArray.class.getName()))                                            json.add(label, (JsonArray) value);
         else if (typeName.equals(JsonObject.class.getName()))                                           json.add(label, (JsonObject) value);
+        else if (typeName.equals(String[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((String[]) value));
+        else if (typeName.equals(int[].class.getName()))                                                json.add(label, ArrayToJsonArrayConverter.convert((int[]) value));
+        else if (typeName.equals(double[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((double[]) value));
+        else if (typeName.equals(float[].class.getName()))                                              json.add(label, ArrayToJsonArrayConverter.convert((float[]) value));
+        else if (typeName.equals(long[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((long[]) value));
+        else if (typeName.equals(short[].class.getName()))                                              json.add(label, ArrayToJsonArrayConverter.convert((short[]) value));
+        else if (typeName.equals(byte[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((byte[]) value));
+        else if (typeName.equals(boolean[].class.getName()))                                            json.add(label, ArrayToJsonArrayConverter.convert((boolean[]) value));
+        else if (typeName.equals(char[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((char[]) value));
+        else if (typeName.equals(Object[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((Object[]) value));
+        else if (typeName.equals(DataObject.class.getName()))                                           json.add(label, ((DataObject) value).toJson());
         else if (value.getClass().getSuperclass().getName().equals(DataObject.class.getName())) json.add(label, ((DataObject) value).toJson());
         else                                      json.addProperty(label, value.toString());
 
