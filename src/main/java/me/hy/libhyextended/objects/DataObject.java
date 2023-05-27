@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.hy.libhyextended.objects.exception.DataFieldMismatchException;
+import me.hy.libhyextended.utils.ArrayFromJsonArrayConverter;
+import me.hy.libhyextended.utils.ArrayToJsonArrayConverter;
 
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -44,6 +46,17 @@ public abstract class DataObject {
         }
         else if (typeName.equals(JsonArray.class.getName()))                                            json.add(label, (JsonArray) value);
         else if (typeName.equals(JsonObject.class.getName()))                                           json.add(label, (JsonObject) value);
+        else if (typeName.equals(String[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((String[]) value));
+        else if (typeName.equals(int[].class.getName()))                                                json.add(label, ArrayToJsonArrayConverter.convert((int[]) value));
+        else if (typeName.equals(double[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((double[]) value));
+        else if (typeName.equals(float[].class.getName()))                                              json.add(label, ArrayToJsonArrayConverter.convert((float[]) value));
+        else if (typeName.equals(long[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((long[]) value));
+        else if (typeName.equals(short[].class.getName()))                                              json.add(label, ArrayToJsonArrayConverter.convert((short[]) value));
+        else if (typeName.equals(byte[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((byte[]) value));
+        else if (typeName.equals(boolean[].class.getName()))                                            json.add(label, ArrayToJsonArrayConverter.convert((boolean[]) value));
+        else if (typeName.equals(char[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((char[]) value));
+        else if (typeName.equals(Object[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((Object[]) value));
+        else if (typeName.equals(DataObject.class.getName()))                                           json.add(label, ((DataObject) value).toJson());
         else if (value.getClass().getSuperclass().getName().equals(DataObject.class.getName())) json.add(label, ((DataObject) value).toJson());
         else                                      json.addProperty(label, value.toString());
 
@@ -98,20 +111,29 @@ public abstract class DataObject {
 
                 // Get type
                 Class<?> type = field.getType();
-                String typeName = type.getName().toLowerCase();
+                String typeName = type.getName();
 
-                if (typeName.contains("int")) field.set(this, o.get(name).getAsInt());
-                else if (typeName.contains("float")) field.set(this, o.get(name).getAsFloat());
-                else if (typeName.contains("double")) field.set(this, o.get(name).getAsDouble());
-                else if (typeName.contains("long")) field.set(this, o.get(name).getAsLong());
-                else if (typeName.contains("bool")) field.set(this, o.get(name).getAsBoolean());
+                if (typeName.equals(int.class.getName()) || typeName.equals(Integer.class.getName())) field.set(this, o.get(name).getAsInt());
+                else if (typeName.equals(float.class.getName()) || typeName.equals(Float.class.getName())) field.set(this, o.get(name).getAsFloat());
+                else if (typeName.equals(double.class.getName()) || typeName.equals(Double.class.getName())) field.set(this, o.get(name).getAsDouble());
+                else if (typeName.equals(long.class.getName()) || typeName.equals(Long.class.getName())) field.set(this, o.get(name).getAsLong());
+                else if (typeName.equals(boolean.class.getName()) || typeName.equals(Boolean.class.getName())) field.set(this, o.get(name).getAsBoolean());
+                else if (typeName.equals(short.class.getName()) || typeName.equals(Short.class.getName())) field.set(this, o.get(name).getAsShort());
+                else if (typeName.equals(byte.class.getName()) || typeName.equals(Byte.class.getName())) field.set(this, o.get(name).getAsByte());
+                else if (typeName.equals(char.class.getName()) || typeName.equals(Character.class.getName())) field.set(this, o.get(name).getAsString());
                 else if (type.getSuperclass().getName().equals(DataObject.class.getName())) {
                     JsonObject object = o.get(name).getAsJsonObject();
                     DataObject dataObject = (DataObject) type.getDeclaredConstructor().newInstance();
                     dataObject.fromJson(object);
                     field.set(this, dataObject);
                 }
-                else if (typeName.contains("string")) field.set(this, o.get(name).getAsString());
+                else if (typeName.equals(String.class.getName())) field.set(this, o.get(name).getAsString());
+                else if (typeName.equals(JsonArray.class.getName())) field.set(this, o.get(name).getAsJsonArray());
+                else if (typeName.equals(JsonObject.class.getName())) field.set(this, o.get(name).getAsJsonObject());
+                else if (typeName.startsWith("[L")) {
+                    JsonArray jsonArray = o.get(name).getAsJsonArray();
+                    field.set(this, ArrayFromJsonArrayConverter.convert(jsonArray, type));
+                }
                 else System.out.println("Unknown type: " + typeName + " with type " + type.isAssignableFrom(DataObject.class));
 
             } catch (Exception e) {
@@ -121,4 +143,5 @@ public abstract class DataObject {
             }
         }
     }
+
 }
