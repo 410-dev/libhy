@@ -1,4 +1,4 @@
-package me.hy.libhyextended.serverutils;
+package me.hy.libhyextended.apis;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -22,25 +22,32 @@ import java.util.Base64;
 public class SENS {
 
     @NonNull
-    private static String accessKey;
+    private String accessKey;
 
     @NonNull
-    private static String secretKey;
+    private String secretKey;
 
     @NonNull
-    private static String serviceId;
+    private String serviceId;
 
     @NonNull
-    private static String from;
+    private String from;
 
-    private static void checkParameters() {
+    public SENS(String accessKey, String secretKey, String serviceId, String from) {
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
+        this.serviceId = serviceId;
+        this.from = from;
+    }
+
+    private void checkParameters() {
         if (accessKey == null) throw new UnpreparedCodeExecutionException("SENS.sendSMS()", "SENS.setAccessKey()");
         if (secretKey == null) throw new UnpreparedCodeExecutionException("SENS.sendSMS()", "SENS.setSecretKey()");
         if (serviceId == null) throw new UnpreparedCodeExecutionException("SENS.sendSMS()", "SENS.setServiceId()");
         if (from == null) throw new UnpreparedCodeExecutionException("SENS.sendSMS()", "SENS.setFrom()");
     }
 
-    public static void sendSMS(String to, String subject, String content, String countryCode) throws Exception {
+    public void sendSMS(String to, String subject, String content, String countryCode) throws Exception {
         checkParameters();
         String hostNameUrl = "https://sens.apigw.ntruss.com";
         String requestUrl = "/sms/v2/services/";
@@ -110,7 +117,7 @@ public class SENS {
         }
     }
 
-    private static String makeSignature(String url, String timestamp, String method, String accessKey, String secretKey) throws NoSuchAlgorithmException, InvalidKeyException {
+    private String makeSignature(String url, String timestamp, String method, String accessKey, String secretKey) throws NoSuchAlgorithmException, InvalidKeyException {
         String space = " ";                    // one space
         String newLine = "\n";                 // new line
 

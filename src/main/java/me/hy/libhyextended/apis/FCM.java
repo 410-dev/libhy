@@ -1,4 +1,4 @@
-package me.hy.libhyextended.serverutils;
+package me.hy.libhyextended.apis;
 
 import com.google.gson.JsonObject;
 import me.hy.libhyextended.request.HERequest;
@@ -7,7 +7,14 @@ import me.hy.libhyextended.request.HERequestParameter;
 import java.util.HashMap;
 
 public class FCM {
-    public static String push(String to, JsonObject data, String apiKey) {
+
+    private String apiKey;
+
+    public FCM(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    public String push(String to, JsonObject data) {
         try {
             HashMap<String, String> properties = new HashMap<>();
             properties.put("Content-Type", "application/json");
