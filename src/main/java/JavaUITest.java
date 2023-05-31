@@ -1,8 +1,7 @@
-import me.hy.libhyextended.javaui.UIWindow;
-import me.hy.libhyextended.javaui.UIWindowManager;
-import me.hy.libhyextended.javaui.components.*;
-import me.hy.libhyextended.javaui.components.organizers.*;
-import me.hy.libhyextended.javaui.properties.UIWindowProperty;
+import me.hysong.libhyextended.javaui.UIWindowManager;
+import me.hysong.libhyextended.javaui.components.*;
+import me.hysong.libhyextended.javaui.components.organizers.*;
+import me.hysong.libhyextended.javaui.properties.UIWindowProperty;
 
 import javax.swing.event.MouseInputAdapter;
 import java.awt.event.MouseEvent;
