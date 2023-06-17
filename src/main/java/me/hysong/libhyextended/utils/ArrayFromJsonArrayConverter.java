@@ -1,7 +1,15 @@
 package me.hysong.libhyextended.utils;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArrayFromJsonArrayConverter {
 
@@ -40,4 +48,43 @@ public class ArrayFromJsonArrayConverter {
             throw new IllegalArgumentException("Unsupported array type: " + type.getName());
         }
     }
+
+
+    public static ArrayList<?> arrayList(JsonArray jsonArray, Class<?> type) throws JsonProcessingException {
+
+        if (type.isAssignableFrom(int.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(float.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(double.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(long.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(short.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(byte.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(boolean.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(char.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(String.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(Object.class)) {
+            return buildNewArrayList(jsonArray, type);
+        }
+
+        Type listType = TypeToken.getParameterized(ArrayList.class, type).getType();
+        return gson.fromJson(jsonArray, listType);
+    }
+
+    private static ArrayList<?> buildNewArrayList(JsonArray jsonArray, Class<?> type) throws JsonProcessingException {
+        ArrayList<?> list = new ArrayList<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            list.add(gson.fromJson(jsonArray.get(i), (Type) type));
+        }
+        System.out.println(list);
+        return list;
+    }
+
 }
