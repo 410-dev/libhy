@@ -1,5 +1,10 @@
 package me.hysong.libhyextended;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Utils {
     public static int max(int[] list) {
         int max = Integer.MIN_VALUE;
@@ -411,5 +416,26 @@ public class Utils {
         return range((byte) 0, max, (byte) 1);
     }
 
+    public static String[] splitStringBySpaceWithQuotationConsideration(String s) {
 
+        // Regular expression to match quoted or non-quoted parts of the command
+        String regex = "\"([^\"]*)\"|'([^']*)'|\\S+";
+        List<String> arguments = new ArrayList<>();
+
+        // Use regex pattern to split the command into arguments
+        Matcher matcher = Pattern.compile(regex).matcher(s);
+        while (matcher.find()) {
+            // Add the matched group to the arguments list
+            String argument = matcher.group();
+            // Remove the surrounding quotes if present
+            if (argument.startsWith("\"") && argument.endsWith("\"") ||
+                    argument.startsWith("'") && argument.endsWith("'")) {
+                argument = argument.substring(1, argument.length() - 1);
+            }
+            arguments.add(argument);
+        }
+
+        // Convert the list to an array and return
+        return arguments.toArray(new String[0]);
+    }
 }
