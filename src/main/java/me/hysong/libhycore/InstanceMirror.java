@@ -10,11 +10,11 @@ public class InstanceMirror {
 
 
     /**
-     * Mirrors the values of two objects of the same class.
-     * @param self The object to mirror (Equivalent to newly created object)
+     * Mirrors the values of two objects of the same class. Copy: other -> self
      * @param other The object to mirror from (Equivalent to original object)
+     * @param self The object to mirror (Equivalent to newly created object)
      */
-    public static void mirror(Object self, Object other) {
+    public static void mirror(Object other, Object self) {
         if (self.getClass() != other.getClass()) {
             throw new IllegalArgumentException("The two objects must be of the same class");
         }
