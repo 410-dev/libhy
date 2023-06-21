@@ -1,14 +1,13 @@
 package me.hysong.libhyextended.objects;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import me.hysong.libhyextended.objects.exception.DataFieldMismatchException;
 import me.hysong.libhyextended.utils.ArrayFromJsonArrayConverter;
 import me.hysong.libhyextended.utils.ArrayToJsonArrayConverter;
+import me.hysong.libhyextended.utils.JsonBeautifier;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +25,7 @@ public abstract class DataObject {
         else if (typeName.equals(byte.class.getName()) || typeName.equals(Byte.class.getName()))          json.addProperty(label, Byte.parseByte(value.toString()));
         else if (typeName.equals(char.class.getName()) || typeName.equals(Character.class.getName()))     json.addProperty(label, value.toString().charAt(0));
         else if (typeName.equals(String.class.getName()))                                                 json.addProperty(label, value.toString());
+        else if (value.getClass().getSuperclass().getName().equals(Enum.class.getName()))                 json.addProperty(label, value.toString());
         else if (typeName.equals(ArrayList.class.getName()) || typeName.equals(List.class.getName())) {
             JsonArray array = new JsonArray();
             for (Object o : (ArrayList<?>) value) {
@@ -55,8 +55,8 @@ public abstract class DataObject {
         else if (typeName.equals(char[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((char[]) value));
         else if (typeName.equals(Object[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((Object[]) value));
         else if (typeName.equals(DataObject.class.getName()))                                           json.add(label, ((DataObject) value).toJson());
-        else if (value.getClass().getSuperclass().getName().equals(DataObject.class.getName())) json.add(label, ((DataObject) value).toJson());
-        else                                      json.addProperty(label, value.toString());
+        else if (value.getClass().getSuperclass().getName().equals(DataObject.class.getName()))         json.add(label, ((DataObject) value).toJson());
+        else                                                                                            json.addProperty(label, value.toString());
 
         return json;
     }
@@ -78,7 +78,7 @@ public abstract class DataObject {
                 toJsonRecursive(field.getName(), typeName, field.get(this), json);
             }catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Failed to export " + field.getName() + " to Json.");
+                throw new RuntimeException("Failed to export '" + field.getName() + "' (" + field.getType() + ") to Json.");
             }
         }
 
@@ -86,8 +86,7 @@ public abstract class DataObject {
     }
 
     public String toJsonString() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(toJson());
+        return JsonBeautifier.beautify(toJson());
     }
 
     public String toString() {
@@ -128,11 +127,27 @@ public abstract class DataObject {
                 else if (typeName.equals(String.class.getName())) field.set(this, o.get(name).getAsString());
                 else if (typeName.equals(JsonArray.class.getName())) field.set(this, o.get(name).getAsJsonArray());
                 else if (typeName.equals(JsonObject.class.getName())) field.set(this, o.get(name).getAsJsonObject());
+                else if (type.getSuperclass().getName().equals(Enum.class.getName())) {
+                    String enumName = o.get(name).getAsString();
+                    Enum<?>[] enumConstants = (Enum<?>[]) type.getEnumConstants();
+                    for (Enum<?> enumConstant : enumConstants) {
+                        if (enumConstant.name().equals(enumName)) {
+                            field.set(this, enumConstant);
+                            break;
+                        }
+                    }
+
+                }
                 else if (typeName.startsWith("[L")) {
                     JsonArray jsonArray = o.get(name).getAsJsonArray();
                     field.set(this, ArrayFromJsonArrayConverter.convert(jsonArray, type));
                 }
-                else System.out.println("Unknown type: " + typeName + " with type " + type.isAssignableFrom(DataObject.class));
+                else if (typeName.equals(ArrayList.class.getName())) {
+                    JsonArray jsonArray = o.get(name).getAsJsonArray();
+                    Class<?> genericType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                    field.set(this, ArrayFromJsonArrayConverter.arrayList(jsonArray, genericType));
+                }
+                else System.out.println("Unknown type: " + typeName + " (SuperClass: " + type.getSuperclass().getName() + ", DataObject assignable: "+ type.isAssignableFrom(DataObject.class) + ")");
 
             } catch (Exception e) {
                 e.printStackTrace();
