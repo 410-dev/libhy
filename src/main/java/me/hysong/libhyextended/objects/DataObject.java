@@ -14,7 +14,15 @@ import java.util.List;
 
 public abstract class DataObject {
 
-    public JsonObject toJsonRecursive(String label, String typeName, Object value, JsonObject json) {
+    /**
+     * Render the object to JsonObject recursively (If sub-objects are also DataObjects)
+     * @param label The label of the object
+     * @param typeName The type name of the object
+     * @param value The value of the object
+     * @param json The JsonObject to render to
+     * @return The rendered JsonObject
+     */
+    private JsonObject toJsonRecursive(String label, String typeName, Object value, JsonObject json) {
 
         if (typeName.equals(int.class.getName()) || typeName.equals(Integer.class.getName()))             json.addProperty(label, Integer.parseInt(value.toString()));
         else if (typeName.equals(float.class.getName()) || typeName.equals(Float.class.getName()))        json.addProperty(label, Float.parseFloat(value.toString()));
@@ -61,6 +69,10 @@ public abstract class DataObject {
         return json;
     }
 
+    /**
+     * Render the object to JsonObject (Runs toJsonRecursive())
+     * @return The rendered JsonObject
+     */
     public JsonObject toJson() {
         Class<?> reflectedClass = this.getClass();
 
@@ -85,14 +97,27 @@ public abstract class DataObject {
         return json;
     }
 
+    /**
+     * Render the object to JsonObject, then converts it to a String (Runs toJson())
+     * @return The rendered JsonObject with beautified Json
+     */
     public String toJsonString() {
         return JsonBeautifier.beautify(toJson());
     }
 
+    /**
+     * Render the object to JsonObject, then converts it to a String (Runs toJson())
+     * @return The rendered JsonObject with non-beautified Json
+     */
     public String toString() {
         return toJson().toString();
     }
 
+    /**
+     * Maps the variables from the JsonObject to the object
+     * @param o The JsonObject to map from
+     * @throws DataFieldMismatchException If the field type or name is not the same as the one in the object
+     */
     public void fromJson(JsonObject o) throws DataFieldMismatchException {
         Class<?> reflectedClass = this.getClass();
 

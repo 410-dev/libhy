@@ -15,10 +15,29 @@ public class HERequest {
 
     private static String baseURL = "";
 
+    /**
+     * Send a request to the specified URL.
+     * @param requestURL The URL to send the request to.
+     * @param method The HTTP method to use.
+     * @param body The body of the request.
+     * @param parameters The parameters to append to the URL.
+     * @return The response from the server.
+     * @throws IOException If an error occurs while sending the request.
+     */
     public static String request(String requestURL, String method, String body, HERequestParameter[] parameters) throws IOException {
         return request(requestURL, method, new HashMap<>(0), body, parameters);
     }
 
+    /**
+     * Send a request to the specified URL.
+     * @param requestURL The URL to send the request to.
+     * @param method The HTTP method to use.
+     * @param requestProperty The request properties to set.
+     * @param body The body of the request.
+     * @param parameters The parameters to append to the URL.
+     * @return The response from the server.
+     * @throws IOException If an error occurs while sending the request.
+     */
     public static String request(String requestURL, String method, HashMap<String, String> requestProperty, String body, HERequestParameter[] parameters) throws IOException {
 
         StringBuilder requestURLBuilder = new StringBuilder(requestURL);
