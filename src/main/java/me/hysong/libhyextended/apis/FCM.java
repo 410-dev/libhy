@@ -6,15 +6,19 @@ import me.hysong.libhyextended.request.HERequestParameter;
 
 import java.util.HashMap;
 
+/**
+ * Google Firebase Cloud Messaging API for push notification
+ */
 public class FCM {
 
-    private String apiKey;
-
-    public FCM(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
-    public String push(String to, JsonObject data) {
+    /**
+     * Push message to a device using FCM
+     * @param to Device token
+     * @param data Data to send
+     * @param apiKey API key
+     * @return Response from FCM
+     */
+    public static String push(String to, JsonObject data, String apiKey) {
         try {
             HashMap<String, String> properties = new HashMap<>();
             properties.put("Content-Type", "application/json");
