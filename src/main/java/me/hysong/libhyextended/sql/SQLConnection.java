@@ -3,6 +3,7 @@ package me.hysong.libhyextended.sql;
 import lombok.NonNull;
 import lombok.Setter;
 import me.hysong.libhycore.CoreLogger;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 
@@ -16,9 +17,10 @@ public class SQLConnection {
     @NonNull private String databaseName;
     @NonNull private String username;
     @NonNull private String password;
-    @NonNull private int secondsTimeout = 10;
-    @NonNull private boolean useAutoClose = true;
-    @NonNull private boolean useSQLite = false;
+
+    private int secondsTimeout = 10;
+    private boolean useAutoClose = true;
+    private boolean useSQLite = false;
 
     private Connection connection;
 
@@ -27,7 +29,7 @@ public class SQLConnection {
         SQLConnection.printDebug = printDebug;
     }
 
-    public SQLConnection(String databaseName, String username, String password) {
+    public SQLConnection(@NotNull String databaseName, @NotNull String username, @NotNull String password) {
         this.databaseName = databaseName;
         this.username = username;
         this.password = password;
