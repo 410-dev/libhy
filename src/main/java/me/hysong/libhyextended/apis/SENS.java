@@ -18,21 +18,40 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+
+/**
+ * Naver Cloud Platform SENS API for SMS message sending
+ */
 @Setter
 public class SENS {
 
-    @NonNull
-    private String accessKey;
+    /**
+     * SENS API Access key
+     */
+    @NonNull private String accessKey;
 
-    @NonNull
-    private String secretKey;
+    /**
+     * SENS API Secret key
+     */
+    @NonNull private String secretKey;
 
-    @NonNull
-    private String serviceId;
+    /**
+     * SENS API Service ID
+     */
+    @NonNull private String serviceId;
 
-    @NonNull
-    private String from;
+    /**
+     * SENS API Sender phone number
+     */
+    @NonNull private String from;
 
+    /**
+     * Create a new SENS API instance
+     * @param accessKey SENS API Access key
+     * @param secretKey SENS API Secret key
+     * @param serviceId SENS API Service ID
+     * @param from SENS API Sender phone number
+     */
     public SENS(String accessKey, String secretKey, String serviceId, String from) {
         this.accessKey = accessKey;
         this.secretKey = secretKey;
@@ -40,6 +59,10 @@ public class SENS {
         this.from = from;
     }
 
+    /**
+     * Check if all parameters are set
+     * @throws UnpreparedCodeExecutionException if any of the parameters are not set
+     */
     private void checkParameters() {
         if (accessKey == null) throw new UnpreparedCodeExecutionException("SENS.sendSMS()", "SENS.setAccessKey()");
         if (secretKey == null) throw new UnpreparedCodeExecutionException("SENS.sendSMS()", "SENS.setSecretKey()");
@@ -47,6 +70,14 @@ public class SENS {
         if (from == null) throw new UnpreparedCodeExecutionException("SENS.sendSMS()", "SENS.setFrom()");
     }
 
+    /**
+     * Send SMS message to a phone number
+     * @param to Phone number to send SMS to
+     * @param subject SMS message subject
+     * @param content SMS message content
+     * @param countryCode Country code of the phone number
+     * @throws Exception if any error occurs
+     */
     public void sendSMS(String to, String subject, String content, String countryCode) throws Exception {
         checkParameters();
         String hostNameUrl = "https://sens.apigw.ntruss.com";
@@ -117,6 +148,17 @@ public class SENS {
         }
     }
 
+    /**
+     * Make signature for SENS API
+     * @param url SENS API URL
+     * @param timestamp current timestamp (epoch)
+     * @param method SENS API method
+     * @param accessKey SENS API Access Key
+     * @param secretKey SENS API Secret Key
+     * @return Base64 encoded signature
+     * @throws NoSuchAlgorithmException if HmacSHA256 is not supported
+     * @throws InvalidKeyException if the key is invalid
+     */
     private String makeSignature(String url, String timestamp, String method, String accessKey, String secretKey) throws NoSuchAlgorithmException, InvalidKeyException {
         String space = " ";                    // one space
         String newLine = "\n";                 // new line

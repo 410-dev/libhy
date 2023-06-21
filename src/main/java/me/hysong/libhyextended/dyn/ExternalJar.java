@@ -9,11 +9,21 @@ import java.util.ArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+/**
+ * A class that loads external JAR files and allows you to access classes inside it.
+ */
 public class ExternalJar {
 
     private final ArrayList<String> classNames = new ArrayList<>();
     private URLClassLoader classLoader = null;
 
+    /**
+     * Loads a JAR file from the specified path.
+     *
+     * @param filePath The path to the JAR file.
+     * @return The ExternalJar object. Use this to method chain the require() method.
+     * @throws IOException If the JAR file cannot be loaded.
+     */
     public ExternalJar from(String filePath) throws IOException {
         JarEntry jar;
         FileInputStream fileInputStream = null;
@@ -52,6 +62,13 @@ public class ExternalJar {
         return this;
     }
 
+    /**
+     * Loads a class from the JAR file.
+     *
+     * @param requiredClassName The name of the class to load.
+     * @return The loaded class.
+     * @throws ClassNotFoundException If the class cannot be found.
+     */
     public Class<?> require(String requiredClassName) throws ClassNotFoundException {
         Class<?> loadedClass = null;
         for (String className : classNames) {
@@ -63,6 +80,11 @@ public class ExternalJar {
         return loadedClass;
     }
 
+    /**
+     * Closes the class loader.
+     *
+     * @throws IOException If the class loader cannot be closed.
+     */
     public void close() throws IOException {
         if (classLoader != null) {
             classLoader.close();
