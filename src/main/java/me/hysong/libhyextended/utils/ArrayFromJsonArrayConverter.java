@@ -83,7 +83,6 @@ public class ArrayFromJsonArrayConverter {
         for (int i = 0; i < jsonArray.size(); i++) {
             list.add(gson.fromJson(jsonArray.get(i), (Type) type));
         }
-        System.out.println(list);
         return list;
     }
 
