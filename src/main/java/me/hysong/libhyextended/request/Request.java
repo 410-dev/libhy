@@ -11,7 +11,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
-public class HERequest {
+/**
+ * Send HTTP requests.
+ */
+public class Request {
 
     private static String baseURL = "";
 
@@ -24,7 +27,7 @@ public class HERequest {
      * @return The response from the server.
      * @throws IOException If an error occurs while sending the request.
      */
-    public static String request(String requestURL, String method, String body, HERequestParameter[] parameters) throws IOException {
+    public static String request(String requestURL, String method, String body, RequestParameter[] parameters) throws IOException {
         return request(requestURL, method, new HashMap<>(0), body, parameters);
     }
 
@@ -38,10 +41,10 @@ public class HERequest {
      * @return The response from the server.
      * @throws IOException If an error occurs while sending the request.
      */
-    public static String request(String requestURL, String method, HashMap<String, String> requestProperty, String body, HERequestParameter[] parameters) throws IOException {
+    public static String request(String requestURL, String method, HashMap<String, String> requestProperty, String body, RequestParameter[] parameters) throws IOException {
 
         StringBuilder requestURLBuilder = new StringBuilder(requestURL);
-        for (HERequestParameter parameter : parameters) {
+        for (RequestParameter parameter : parameters) {
             requestURLBuilder.append(requestURLBuilder.toString().contains("?") ? "&" : "?").append(parameter.toString());
         }
         requestURL = baseURL + requestURLBuilder.toString();
@@ -75,10 +78,10 @@ public class HERequest {
     }
 
     public static void setBaseURL(String baseURL) {
-        HERequest.baseURL = baseURL;
+        Request.baseURL = baseURL;
     }
 
     public static String getBaseURL() {
-        return HERequest.baseURL;
+        return Request.baseURL;
     }
 }

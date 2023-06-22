@@ -1,8 +1,8 @@
 package me.hysong.libhyextended.apis;
 
 import com.google.gson.JsonObject;
-import me.hysong.libhyextended.request.HERequest;
-import me.hysong.libhyextended.request.HERequestParameter;
+import me.hysong.libhyextended.request.Request;
+import me.hysong.libhyextended.request.RequestParameter;
 
 import java.util.HashMap;
 
@@ -29,12 +29,12 @@ public class FCM {
             body.add("data", data);
             body.add("notification", data);
 
-            return HERequest.request(
+            return Request.request(
                     "https://fcm.googleapis.com/fcm/send",
                     "POST",
                     properties,
                     body.toString(),
-                    new HERequestParameter[]{});
+                    new RequestParameter[]{});
         } catch (Exception e) {
             e.printStackTrace();
         }

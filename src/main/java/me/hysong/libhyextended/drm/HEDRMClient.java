@@ -1,12 +1,12 @@
 package me.hysong.libhyextended.drm;
 
-import me.hysong.libhyextended.request.HERequest;
-import me.hysong.libhyextended.request.HERequestParameter;
+import me.hysong.libhyextended.request.Request;
+import me.hysong.libhyextended.request.RequestParameter;
 
 import java.io.IOException;
 
 public class HEDRMClient {
     public static String verify(String serverURL, HEDRMObject object) throws IOException {
-        return HERequest.request(serverURL, "POST", object.toToken(), new HERequestParameter[]{});
+        return Request.request(serverURL, "POST", object.toToken(), new RequestParameter[]{});
     }
 }

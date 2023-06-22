@@ -5,7 +5,7 @@ package me.hysong.libhyextended.request;
  * @param name Parameter name
  * @param value Parameter value
  */
-public record HERequestParameter(String name, String value) {
+public record RequestParameter(String name, String value) {
 
     public String toString() {
         return name + "=" + value + "&";
