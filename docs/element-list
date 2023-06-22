@@ -3,6 +3,7 @@ me.hysong.libhycore
 me.hysong.libhycore.exceptions
 me.hysong.libhycore.interfaces
 me.hysong.libhyextended
+me.hysong.libhyextended.apis
 me.hysong.libhyextended.drm
 me.hysong.libhyextended.dyn
 me.hysong.libhyextended.javaui
@@ -15,6 +16,5 @@ me.hysong.libhyextended.mail.servers
 me.hysong.libhyextended.objects
 me.hysong.libhyextended.objects.exception
 me.hysong.libhyextended.request
-me.hysong.libhyextended.serverutils
 me.hysong.libhyextended.sql
 me.hysong.libhyextended.utils
