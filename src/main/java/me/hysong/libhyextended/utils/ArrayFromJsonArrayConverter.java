@@ -15,7 +15,7 @@ public class ArrayFromJsonArrayConverter {
 
     private static final Gson gson = new Gson();
 
-    public static Object convert(JsonArray jsonArray, Class<?> type) {
+    public static Object array(JsonArray jsonArray, Class<?> type) {
         if (type.isAssignableFrom(int[].class)) {
             return gson.fromJson(jsonArray, int[].class);
         } else if (type.isAssignableFrom(float[].class)) {

@@ -165,7 +165,7 @@ public abstract class DataObject {
                 }
                 else if (typeName.startsWith("[L")) {
                     JsonArray jsonArray = o.get(name).getAsJsonArray();
-                    field.set(this, ArrayFromJsonArrayConverter.convert(jsonArray, type));
+                    field.set(this, ArrayFromJsonArrayConverter.array(jsonArray, type));
                 }
                 else if (typeName.equals(ArrayList.class.getName())) {
                     JsonArray jsonArray = o.get(name).getAsJsonArray();
