@@ -6,6 +6,32 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+
+    /**
+     * Print a string to stdout
+     * @param s String to print
+     * @param endsWith String to end with
+     */
+    public static void print(Object s, String endsWith) {
+        System.out.print(s + endsWith);
+    }
+
+    /**
+     * Print a string to stdout with a newline at the end
+     * @param s String to print
+     */
+    public static void print(Object s) {
+        print(s, "\n");
+    }
+
+    /**
+     * Print a string to stderr
+     * @param s String to print
+     */
+    public static void err(String s) {
+        System.err.println(s);
+    }
+
     public static int max(int[] list) {
         int max = Integer.MIN_VALUE;
         for (int i : list) {
