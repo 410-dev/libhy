@@ -1,20 +1,26 @@
 package me.hysong.libhyextended.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Convert JsonArray to Array
+ */
 public class ArrayFromJsonArrayConverter {
 
     private static final Gson gson = new Gson();
 
+    /**
+     * Convert JsonArray to Array
+     *
+     * @param jsonArray JsonArray to convert
+     * @param type      Array type
+     * @return Array converted from JsonArray
+     */
     public static Object array(JsonArray jsonArray, Class<?> type) {
         if (type.isAssignableFrom(int[].class)) {
             return gson.fromJson(jsonArray, int[].class);
@@ -49,7 +55,14 @@ public class ArrayFromJsonArrayConverter {
         }
     }
 
-
+    /**
+     * Convert JsonArray to ArrayList with type
+     *
+     * @param jsonArray JsonArray to convert
+     * @param type      ArrayList generic type
+     * @return ArrayList converted from JsonArray
+     * @throws JsonProcessingException
+     */
     public static ArrayList<?> arrayList(JsonArray jsonArray, Class<?> type) throws JsonProcessingException {
 
         if (type.isAssignableFrom(int.class)) {

@@ -4,6 +4,9 @@ import com.google.gson.JsonArray;
 
 import java.util.List;
 
+/**
+ * Convert Array to JsonArray
+ */
 public class ArrayToJsonArrayConverter {
 
     public static JsonArray convert(int[] array) {
