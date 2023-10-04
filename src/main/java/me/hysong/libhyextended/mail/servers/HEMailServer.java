@@ -10,6 +10,7 @@ public abstract class HEMailServer {
     protected String senderName;
     protected String password;
 
+    protected String sslProtocol = "TLSv1.2";
     protected boolean useTLS = true;
     protected boolean useSMTPAuth = true;
 }

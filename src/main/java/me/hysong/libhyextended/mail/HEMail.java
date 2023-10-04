@@ -19,6 +19,7 @@ public class HEMail {
             properties.put("mail.smtp.auth", server.isUseSMTPAuth());
             properties.put("mail.smtp.starttls.enable", server.isUseTLS());
             properties.put("mail.user", server.getSenderMailAddress());
+            properties.put("mail.smtp.ssl.protocols", server.getSslProtocol());
             properties.put("mail.password", server.getPassword());
             Authenticator auth = new Authenticator() {
                 public PasswordAuthentication getPasswordAuthentication() {
@@ -27,7 +28,7 @@ public class HEMail {
             };
             Session session = Session.getInstance(properties, auth);
             Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(server.getSenderName()));
+//            msg.setFrom(new InternetAddress(server.getSenderName()));
             InternetAddress[] toAddresses = {new InternetAddress(mailObject.getRecipientAddress())};
             msg.setRecipients(Message.RecipientType.TO, toAddresses);
             msg.setSubject(mailObject.getSubject());
