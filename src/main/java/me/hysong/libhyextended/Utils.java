@@ -1,5 +1,10 @@
 package me.hysong.libhyextended;
 
+import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -762,6 +767,30 @@ public class Utils {
     }
 
     /**
+     * Check if an element is in given array or list
+     * @param element Element to check
+     * @param list Array to check
+     */
+    public static <T> boolean in(T element, T[] list) {
+        for (T i : list) {
+            if (i.equals(element)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if an element is in given array or list
+     * @param element Element to check
+     * @param list List to check
+     */
+    public static <T> boolean in(T element, List<T> list) {
+        for (T i : list) {
+            if (i.equals(element)) return true;
+        }
+        return false;
+    }
+
+    /**
      * Split a string by space, but consider quoted strings as one argument.
      * @param s String to split
      * @return Array of arguments
@@ -787,5 +816,46 @@ public class Utils {
 
         // Convert the list to an array and return
         return arguments.toArray(new String[0]);
+    }
+
+    public static int middle(int start, int end) {
+        return ((end - start) / 2) + start;
+    }
+
+//    public static int half(int i) {
+//
+//    }
+
+    public static void copy(String source, String destination) throws IOException {
+        File f = new File(source);
+        copy(source, destination, f.getName());
+    }
+    public static void copy(String source, String destination, String fileName) throws IOException {
+        File sourceFile = new File(source);
+        File destinationFile = new File(destination, fileName);
+
+        try (FileInputStream fis = new FileInputStream(sourceFile);
+             FileOutputStream fos = new FileOutputStream(destinationFile)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
+            }
+        }
+    }
+
+
+    public static Component center(Component c, int parentWidth, int parentHeight) {
+        int midPWidth = middle(0, parentWidth);
+        int midPHeight = middle(0, parentHeight);
+
+        int midCWidth = middle(0, c.getWidth());
+        int midCHeight = middle(0, c.getHeight());
+
+        int x = midPWidth - midCWidth;
+        int y = midPHeight - midCHeight;
+
+        c.setLocation(x, y);
+        return c;
     }
 }
