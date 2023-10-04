@@ -226,12 +226,16 @@ public class SubsystemEnvironment {
         }
     }
 
-    public String getConfig(String id) {
+    public String getConfig(String id, boolean noTrim) {
         try {
-            return readString("/Library/config/" + id + ".cfg");
+            return noTrim ? readString("/Library/config/" + id + ".cfg") : readString("/Library/config/" + id + ".cfg").trim();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getConfig(String id) {
+        return getConfig(id, false);
     }
 
     public void initConfig(String id, String defaultValue) {
