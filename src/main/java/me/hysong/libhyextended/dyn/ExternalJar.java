@@ -21,6 +21,16 @@ public class ExternalJar {
      * Loads a JAR file from the specified path.
      *
      * @param filePath The path to the JAR file.
+     * @throws IOException If the JAR file cannot be loaded.
+     */
+    public ExternalJar(String filePath) throws IOException {
+        from(filePath);
+    }
+
+    /**
+     * Loads a JAR file from the specified path.
+     *
+     * @param filePath The path to the JAR file.
      * @return The ExternalJar object. Use this to method chain the require() method.
      * @throws IOException If the JAR file cannot be loaded.
      */
