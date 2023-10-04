@@ -5,14 +5,27 @@ import me.hysong.libhyextended.objects.exception.DataFieldMismatchException;
 import me.hysong.libhyextended.utils.ArrayFromJsonArrayConverter;
 import me.hysong.libhyextended.utils.ArrayToJsonArrayConverter;
 import me.hysong.libhyextended.utils.JsonBeautifier;
+import me.hysong.libhyextended.utils.HashMapFromJsonObjectConverter;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class DataObject {
+public abstract class DataObject implements Serializable {
+
+    private boolean verbose = false;
+
+    public DataObject() {
+
+    }
+
+    public DataObject(boolean verbose) {
+        this.verbose = verbose;
+    }
+
 
     /**
      * Render the object to JsonObject recursively (If sub-objects are also DataObjects)
@@ -23,6 +36,9 @@ public abstract class DataObject {
      * @return The rendered JsonObject
      */
     private JsonObject toJsonRecursive(String label, String typeName, Object value, JsonObject json) {
+
+        if (verbose) System.out.println("RENDERING: " + label + " (" + typeName + ")");
+        if (verbose) System.out.println(JsonBeautifier.beautify(json));
 
         if (typeName.equals(int.class.getName()) || typeName.equals(Integer.class.getName()))             json.addProperty(label, Integer.parseInt(value.toString()));
         else if (typeName.equals(float.class.getName()) || typeName.equals(Float.class.getName()))        json.addProperty(label, Float.parseFloat(value.toString()));
@@ -45,7 +61,9 @@ public abstract class DataObject {
         else if (typeName.equals(HashMap.class.getName())) {
             JsonArray array = new JsonArray();
             for (Object o : ((HashMap<?, ?>) value).keySet()) {
-                JsonObject object = toJsonRecursive(o.toString(), ((HashMap<?, ?>) value).get(o).getClass().getName(), ((HashMap<?, ?>) value).get(o), new JsonObject());
+                JsonObject object = new JsonObject();
+                object.addProperty("key", o == null ? null : o.toString());
+                object.addProperty("value", ((HashMap<?, ?>) value).get(o) == null ? null : ((HashMap<?, ?>) value).get(o).toString());
                 array.add(object);
             }
             json.add(label, array);
@@ -114,6 +132,15 @@ public abstract class DataObject {
     }
 
     /**
+     * Maps the variables from the JsonString to the object
+     * @param json The JsonString to map from
+     * @throws DataFieldMismatchException If the field type or name is not the same as the one in the object
+     */
+    public void fromJsonString(String json) throws DataFieldMismatchException {
+        fromJson(JsonParser.parseString(json).getAsJsonObject());
+    }
+
+    /**
      * Maps the variables from the JsonObject to the object
      * @param o The JsonObject to map from
      * @throws DataFieldMismatchException If the field type or name is not the same as the one in the object
@@ -123,17 +150,23 @@ public abstract class DataObject {
 
         Field[] declaredFields = reflectedClass.getDeclaredFields();
 
+        if (verbose) System.out.println("PARSING: " + reflectedClass.getName());
+        if (verbose) System.out.println(JsonBeautifier.beautify(o));
+
         for (Field field : declaredFields) {
             field.setAccessible(true);
             try {
 
                 // Check if it has name
                 String name = field.getName();
+                if (verbose) System.out.print("PARSING FIELD: " + name);
                 if (!o.has(name)) throw new DataFieldMismatchException(DataFieldMismatchException.FIELD_TYPE_MISMATCH, name, null);
 
                 // Get type
                 Class<?> type = field.getType();
                 String typeName = type.getName();
+
+                if (verbose) System.out.println("(" + typeName + ")");
 
                 if (typeName.equals(int.class.getName()) || typeName.equals(Integer.class.getName())) field.set(this, o.get(name).getAsInt());
                 else if (typeName.equals(float.class.getName()) || typeName.equals(Float.class.getName())) field.set(this, o.get(name).getAsFloat());
@@ -162,6 +195,10 @@ public abstract class DataObject {
                         }
                     }
 
+//                } else if (typeName.equals(HashMap.class.getName())) {
+//                    JsonArray jsonObject = o.get(name).getAsJsonArray();
+//                    Class<?> genericType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1];
+//                    field.set(this, HashMapFromJsonObjectConverter.hashMap(jsonObject, genericType));
                 }
                 else if (typeName.startsWith("[L")) {
                     JsonArray jsonArray = o.get(name).getAsJsonArray();
