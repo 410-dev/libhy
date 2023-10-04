@@ -53,7 +53,7 @@ public class UIImage extends JPanel implements UINonContainerElement {
         return this;
     }
 
-    private UIImage rescale() {
+    public UIImage rescale() {
         img = img.getScaledInstance(getWidth(), getHeight(), Image.SCALE_SMOOTH);
         JLabel icon = new JLabel(new ImageIcon(img));
         icon.setBackground(getForeground());
@@ -61,6 +61,8 @@ public class UIImage extends JPanel implements UINonContainerElement {
         // Change icon size
         icon.setSize(getWidth(), getHeight());
         icon.setBounds(0, 0, getWidth(), getHeight());
+
+        System.out.println("Resized");
 
         // Add icon to panel
         removeAll();
