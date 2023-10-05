@@ -36,6 +36,10 @@ public class StringIO {
     }
 
     public static void appendFileToDisk(String path, String content) throws IOException {
+        if (!new File(path).exists()) {
+            writeFileToDisk(path, content);
+            return;
+        }
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(path, true), StandardCharsets.UTF_8)) {
             writer.write(content);
         }
