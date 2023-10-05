@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,6 +40,8 @@ public class OpenAI {
 
     private String apiKey;
     private String url;
+    @Getter private String lastRequest;
+    @Getter @Setter private boolean lastRequestEnabled = false;
 
     /**
      * Create a new OpenAI API instance with default URL (https://api.openai.com/v1/chat/completions)
@@ -108,6 +111,10 @@ public class OpenAI {
 
         con.setDoOutput(true);
         con.getOutputStream().write(payload.toString().getBytes());
+
+        if (lastRequestEnabled) {
+            lastRequest = payload.toString();
+        }
 
         String output = new BufferedReader(new InputStreamReader(con.getInputStream())).lines().reduce((a, b) -> a + b).get();
         System.out.println(output);
