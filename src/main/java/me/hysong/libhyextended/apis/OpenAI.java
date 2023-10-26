@@ -42,6 +42,7 @@ public class OpenAI {
     private String url;
     @Getter private String lastRequest;
     @Getter @Setter private boolean lastRequestEnabled = false;
+    @Getter @Setter private boolean enableRequestPrint = false;
 
     /**
      * Create a new OpenAI API instance with default URL (https://api.openai.com/v1/chat/completions)
@@ -117,7 +118,8 @@ public class OpenAI {
         }
 
         String output = new BufferedReader(new InputStreamReader(con.getInputStream())).lines().reduce((a, b) -> a + b).get();
-        System.out.println(output);
+
+        if (enableRequestPrint) System.out.println(output);
 
         return new OpenAIGPTResponse(JsonParser.parseString(output).getAsJsonObject());
     }
