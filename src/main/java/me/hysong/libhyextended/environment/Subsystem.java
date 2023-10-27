@@ -44,4 +44,12 @@ public class Subsystem {
         subsystems.remove(getSubsystem(name));
         return true;
     }
+
+    public static boolean addSubsystem(SubsystemEnvironment env) {
+        if (getSubsystem(env.getName()) != null) {
+            return false;
+        }
+        subsystems.add(env);
+        return true;
+    }
 }

@@ -771,7 +771,7 @@ public class Utils {
      * @param element Element to check
      * @param list Array to check
      */
-    public static <T> boolean in(T element, T[] list) {
+    public static <T> boolean arrayContains(T[] list, T element) {
         for (T i : list) {
             if (i.equals(element)) return true;
         }
@@ -783,11 +783,23 @@ public class Utils {
      * @param element Element to check
      * @param list List to check
      */
-    public static <T> boolean in(T element, List<T> list) {
+    public static <T> boolean listContains(List<T> list, T element) {
         for (T i : list) {
             if (i.equals(element)) return true;
         }
         return false;
+    }
+
+    public static <T> T defaultValue(T value, T defaultValue) {
+        return value == null ? defaultValue : value;
+    }
+
+    public static <T> T last(T[] array) {
+        return array[array.length - 1];
+    }
+
+    public static <T> T last(List<T> list) {
+        return list.get(list.size() - 1);
     }
 
     /**
@@ -816,6 +828,15 @@ public class Utils {
 
         // Convert the list to an array and return
         return arguments.toArray(new String[0]);
+    }
+
+    public static String getParameterFromArguments(String[] args, String parameter) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals(parameter) && i + 1 < args.length) {
+                return args[i + 1];
+            }
+        }
+        return null;
     }
 
     public static int middle(int start, int end) {

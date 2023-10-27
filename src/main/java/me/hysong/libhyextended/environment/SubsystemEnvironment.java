@@ -4,11 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 import me.hysong.libhycore.CoreAES;
 import me.hysong.libhycore.CoreBase64;
+import me.hysong.libhyextended.Utils;
 import me.hysong.libhyextended.utils.StringIO;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @Getter
 @Setter
@@ -21,6 +24,8 @@ public class SubsystemEnvironment {
     private String stringIOEncryptionKey = "keydefault";
     private boolean useStringIOEncryption = false;
     private boolean writeStringIOBase64 = false;
+    private boolean useSandbox = false;
+    private HashMap<String, String> environmentVariables = new HashMap<>();
 
     public SubsystemEnvironment(String name, String root) {
         this();
@@ -87,7 +92,17 @@ public class SubsystemEnvironment {
     }
 
     public boolean mkdirs(String path) {
+        access(path);
         return new File(realpath(path)).mkdirs();
+    }
+
+    public void access(String path) {
+        if (!useSandbox) return;
+
+        path = realpath(path);
+        if (!path.startsWith(root)) {
+            throw new SandboxEscapeException();
+        }
     }
 
     public boolean mkdirs(String... paths) {
@@ -107,6 +122,7 @@ public class SubsystemEnvironment {
         ArrayList<String> list = list(path);
         ArrayList<String> build = new ArrayList<>();
         for (String p : list) {
+            access(p);
             File f = new File(realpath(p));
             build.add(p);
             if (f.isDirectory()) {
@@ -127,12 +143,18 @@ public class SubsystemEnvironment {
     }
 
     public ArrayList<String> list(String path) {
+        return list(path, true);
+    }
+
+    public ArrayList<String> list(String path, boolean displayFullPath) {
+        access(path);
         File f = new File(realpath(path));
         File[] files = f.listFiles();
         ArrayList<String> list = new ArrayList<>();
         if (files != null) {
             for (File file : files) {
-                list.add(subsystemPath(file.getAbsolutePath()));
+                if (displayFullPath) list.add(subsystemPath(file.getAbsolutePath()));
+                else list.add(file.getName());
             }
         }
         return list;
@@ -144,6 +166,7 @@ public class SubsystemEnvironment {
     }
 
     public void writeString(String path, String content, String key) throws IOException {
+        access(path);
         if (useStringIOEncryption) {
             try {
                 content = CoreAES.encrypt(content, key);
@@ -162,6 +185,7 @@ public class SubsystemEnvironment {
     }
 
     public String readString(String path, String key) throws IOException {
+        access(path);
         String content = StringIO.readFileFromDisk(realpath(path));
         if (writeStringIOBase64) {
             content = CoreBase64.decode(content);
@@ -177,6 +201,7 @@ public class SubsystemEnvironment {
     }
 
     public void delete(String path) {
+        access(path);
         File f = new File(realpath(path));
         if (f.isDirectory()) {
             for (String file : list(path)) {
@@ -186,6 +211,37 @@ public class SubsystemEnvironment {
         if (!f.delete()) {
             throw new RuntimeException("Failed to delete file " + path);
         }
+    }
+
+    public void rename(String source, String destination) {
+        access(source);
+        access(destination);
+        File f = new File(realpath(source));
+        File d = new File(realpath(destination));
+        if (!f.renameTo(d)) {
+            throw new RuntimeException("Failed to rename file " + source + " to " + destination);
+        }
+    }
+
+    public void copy(String source, String destination) throws IOException {
+        access(source);
+        access(destination);
+        Utils.copy(realpath(source), realpath(destination));
+    }
+
+    public boolean isDirectory(String target) {
+        access(target);
+        return new File(realpath(target)).isDirectory();
+    }
+
+    public boolean exists(String target) {
+        access(target);
+        return new File(realpath(target)).exists();
+    }
+
+    public boolean isFile(String target) {
+        access(target);
+        return new File(realpath(target)).isFile();
     }
 
     public void clearDisk() {
@@ -201,6 +257,7 @@ public class SubsystemEnvironment {
                 "/Library/nvram",
                 "/Library/Preferences",
                 "/Library/Services",
+                "/Library/Services/Sandbox",
                 "/System/bin",
                 "/System/boot/bootloader",
                 "/System/core/bin",
@@ -244,5 +301,40 @@ public class SubsystemEnvironment {
         } catch (IOException e) {
             setConfig(id, defaultValue);
         }
+    }
+
+    public SubsystemEnvironment generateChildEnvironment(String path) {
+        return generateChildEnvironment(path, false);
+    }
+
+    public SubsystemEnvironment generateChildEnvironment(String path, boolean verbose) {
+        SubsystemEnvironment env = new SubsystemEnvironment();
+        Field[] fields = SubsystemEnvironment.class.getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                field.setAccessible(true);
+                field.set(env, field.get(this));
+            } catch (IllegalAccessException e) {
+                if (verbose) {
+                    System.out.println("[Subsystem Environment] [WARNING] Failed to copy field " + field.getName() + " from parent environment to child environment.");
+                }
+            }
+        }
+
+        env.setRoot(realpath(path));
+
+        return env;
+    }
+
+    public void setEnvironmentVariable(String key, String value) {
+        environmentVariables.put(key, value);
+    }
+
+    public String getEnvironmentVariable(String key) {
+        return environmentVariables.get(key);
+    }
+
+    public void unsetEnvironmentVariable(String key) {
+        environmentVariables.remove(key);
     }
 }

@@ -1,5 +1,7 @@
 package me.hysong.libhyextended.dyn;
 
+import lombok.Getter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.util.jar.JarInputStream;
 /**
  * A class that loads external JAR files and allows you to access classes inside it.
  */
+@Getter
 public class ExternalJar {
 
     private final ArrayList<String> classNames = new ArrayList<>();
@@ -26,6 +29,7 @@ public class ExternalJar {
     public ExternalJar(String filePath) throws IOException {
         from(filePath);
     }
+    public ExternalJar(){}
 
     /**
      * Loads a JAR file from the specified path.
@@ -88,6 +92,23 @@ public class ExternalJar {
             }
         }
         return loadedClass;
+    }
+
+    public ArrayList<String> inspectInherit(String className) {
+        ArrayList<String> classes = new ArrayList<>();
+        try {
+            Class<?> loadedClass = require(className);
+            Class<?> superClass = loadedClass.getSuperclass();
+            while (superClass != null) {
+                classes.add(superClass.getName());
+                superClass = superClass.getSuperclass();
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoClassDefFoundError e) {
+            //Ignore
+        }
+        return classes;
     }
 
     /**
