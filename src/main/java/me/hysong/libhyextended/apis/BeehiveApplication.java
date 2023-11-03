@@ -30,16 +30,17 @@ public abstract class BeehiveApplication extends Thread implements BeehiveApplic
     public static final int SIGSEGV = 11;
     public int kill() {
         super.interrupt();
+        super.setDaemon(true);
         return SIGKILL;
     }
 
     public int terminate() {
-        super.interrupt();
+        kill();
         return SIGTERM;
     }
 
     public int segmentFault() {
-        super.interrupt();
+        kill();
         return SIGSEGV;
     }
 
