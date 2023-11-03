@@ -331,7 +331,7 @@ public class SubsystemEnvironment {
     }
 
     public String getEnvironmentVariable(String key) {
-        return environmentVariables.get(key);
+        return environmentVariables.get(key) == null ? "" : environmentVariables.get(key);
     }
 
     public void unsetEnvironmentVariable(String key) {
