@@ -1074,4 +1074,47 @@ public class Utils {
         c.setLocation(x, y);
         return c;
     }
+
+    /**
+     * Drop special characters from a string.
+     * @param original Original string
+     * @param charactersToReplaceInString A string containing all characters to replace
+     * @param replaceWith Replace each character with this string
+     * @return String with special characters replaced
+     */
+    public static String dropSpecialCharacters(String original, String charactersToReplaceInString, String replaceWith) {
+        String[] charactersToReplace = charactersToReplaceInString.split("");
+        String newStr = "";
+        for (String s : charactersToReplace) {
+            newStr = original.replace(s, replaceWith);
+        }
+        return newStr;
+    }
+
+    /**
+     * Drop special characters from a string. Default special characters are !@#$%^&*()+=`~/\][';?.,œ∑´®†¥¨ˆøπ“‘¡™£¢∞§¶•ªº–≠åß∂ƒ©˙∆˚¬…æΩ≈ç√∫˜µ≤≥µ
+     * @param original Original string
+     * @param replaceWith Replace each character with this string
+     * @return String with special characters replaced
+     */
+    public static String dropSpecialCharacters(String original, String replaceWith) {
+        return dropSpecialCharacters(original, "!@#$%^&*()+=`~/\\][';?.,œ∑´®†¥¨ˆøπ“‘¡™£¢∞§¶•ªº–≠åß∂ƒ©˙∆˚¬…æΩ≈ç√∫˜µ≤≥µ", replaceWith);
+    }
+
+    /**
+     * Check if two arrays are equal. Order sensitive.
+     * @param array1 Array 1
+     * @param array2 Array 2
+     * @return True if equal, else false
+     */
+    public static boolean arrayEquals(Object[] array1, Object[] array2) {
+        // Order sensitive.
+        if (array1.length != array2.length) return false;
+
+        for (int i = 0; i < array1.length; i++) {
+            if (!array1[i].equals(array2[i])) return false;
+        }
+
+        return true;
+    }
 }
