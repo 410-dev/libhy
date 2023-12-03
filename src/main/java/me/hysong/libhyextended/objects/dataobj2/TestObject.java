@@ -3,13 +3,14 @@ package me.hysong.libhyextended.objects.dataobj2;
 import me.hysong.libhyextended.objects.exception.DataFieldMismatchException;
 import me.hysong.libhyextended.utils.JsonBeautifier;
 
+
 public class TestObject extends DataObject2 {
 
     @Comparable @JSONCodable private String name = "";
     @Comparable @JSONCodable private int age = 0;
-    @JSONCodable private boolean isMale = true;
+    @Comparable @JSONCodable private boolean isMale = true;
     @Comparable @JSONCodable(codableOn = JSONCodableAction.STRINGIFY) private String notConvertable = "";
-    private String notExportable = "Wala";
+    @NotComparable @NotJSONCodable private String notExportable = "Wala";
 
     public TestObject() {
         name = "John";

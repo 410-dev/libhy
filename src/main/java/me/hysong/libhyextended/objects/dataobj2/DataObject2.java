@@ -151,6 +151,9 @@ public abstract class DataObject2 implements Serializable {
             field.setAccessible(true);
             if (!isTypeHasCodableAnnotation && !hasAnnotationForCodable(action, field.getAnnotations())) continue;
 
+            // Check if field has @NotJSONCodable annotation
+            if (hasAnnotationForNotCodable(field.getAnnotations())) continue;
+
             try {
                 // Get type
                 Class<?> type = field.getType();
@@ -189,7 +192,7 @@ public abstract class DataObject2 implements Serializable {
     }
 
     /**
-     * Checks if the field has @Comparable annotation
+     * Checks if the field has @Comparable annotation (opposite of @NotComparable)
      * @param annotations The annotations to check
      * @return If the field has the annotation for the specified action
      */
@@ -204,6 +207,41 @@ public abstract class DataObject2 implements Serializable {
         }
         return hasAnnotationForExportAction;
     }
+
+    /**
+     * Checks if the field has NotComparable annotation (opposite of @Comparable)
+     * @param annotations The annotations to check
+     * @return If the field has the annotation for the specified action
+     */
+    private static boolean hasAnnotationForNotComparable(Annotation[] annotations) {
+        boolean hasAnnotationForExportAction = false;
+        for (Annotation annotation : annotations) {
+            // Get JSONCodableAction enum, where field is action
+            if (annotation instanceof NotComparable) {
+                hasAnnotationForExportAction = true;
+                break;
+            }
+        }
+        return hasAnnotationForExportAction;
+    }
+
+    /**
+     * Checks if the field has NotJSONCodable annotation (opposite of @JSONCodable)
+     * @param annotations The annotations to check
+     * @return If the field has the annotation for the specified action
+     */
+    private static boolean hasAnnotationForNotCodable(Annotation[] annotations) {
+        boolean hasAnnotationForExportAction = false;
+        for (Annotation annotation : annotations) {
+            // Get JSONCodableAction enum, where field is action
+            if (annotation instanceof NotJSONCodable) {
+                hasAnnotationForExportAction = true;
+                break;
+            }
+        }
+        return hasAnnotationForExportAction;
+    }
+
 
     /**
      * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY))
@@ -458,6 +496,9 @@ public abstract class DataObject2 implements Serializable {
 
             // Check if field has @Comparable annotation
             if (!isTypeHasComparableAnnotation && !hasAnnotationForComparable(field.getAnnotations())) continue;
+
+            // Check if field has @NotComparable annotation
+            if (hasAnnotationForNotComparable(field.getAnnotations())) continue;
 
             try {
                 // Get type
