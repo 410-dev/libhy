@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.hysong.libhyextended.Utils;
 import me.hysong.libhyextended.environment.SubsystemEnvironment;
+import me.hysong.libhyextended.objects.DataObject;
 import me.hysong.libhyextended.objects.exception.DataFieldMismatchException;
 import me.hysong.libhyextended.utils.ArrayFromJsonArrayConverter;
 import me.hysong.libhyextended.utils.ArrayToJsonArrayConverter;
@@ -23,26 +24,57 @@ public abstract class DataObject2 implements Serializable {
 
     private boolean verbose = false;
 
-    public DataObject2() {
+    /**
+     * Creates a new DataObject2
+     */
+    public DataObject2() {}
 
-    }
-
+    /**
+     * Creates a new DataObject2 with verbose logging
+     * @param verbose If verbose logging should be enabled
+     */
     public DataObject2(boolean verbose) {
         this.verbose = verbose;
     }
 
 
     /**
-     * Render the object to JsonObject recursively (If sub-objects are also DataObject2s)
+     * Encode the object to JsonObject recursively (If sub-objects are also DataObject2s)
+     * Supported fields:
+     * - int / Integer
+     * - float / Float
+     * - double / Double
+     * - long / Long
+     * - boolean / Boolean
+     * - short / Short
+     * - byte / Byte
+     * - char / Character
+     * - String
+     * - Enum
+     * - ArrayList / List
+     * - HashMap
+     * - JsonArray
+     * - JsonObject
+     * - String[]
+     * - int[]
+     * - double[]
+     * - float[]
+     * - long[]
+     * - short[]
+     * - byte[]
+     * - boolean[]
+     * - char[]
+     * - Object[]: This will just call toString() on the object
+     * - DataObject2
      * @param label The label of the object
      * @param typeName The type name of the object
      * @param value The value of the object
-     * @param json The JsonObject to render to
-     * @return The rendered JsonObject
+     * @param json The JsonObject to encode to
+     * @return The encoded JsonObject
      */
     private JsonObject toJsonRecursive(String label, String typeName, Object value, JsonObject json, JSONCodableAction action) {
 
-        if (verbose) System.out.println("RENDERING: " + label + " (" + typeName + ")");
+        if (verbose) System.out.println("ENCODING: " + label + " (" + typeName + ")");
         if (verbose) System.out.println(JsonBeautifier.beautify(json));
 
         if (typeName.equals(int.class.getName()) || typeName.equals(Integer.class.getName()))             json.addProperty(label, Integer.parseInt(value.toString()));
@@ -92,13 +124,20 @@ public abstract class DataObject2 implements Serializable {
         return json;
     }
 
+    /**
+     * Encode the object to JsonObject with default JSONCodableAction.OBJECTIFY action.
+     * This method just calls: toJson(JSONCodableAction.OBJECTIFY)
+     * @return The encoded JsonObject
+     */
     public JsonObject toJson() {
         return toJson(JSONCodableAction.OBJECTIFY);
     }
 
     /**
-     * Render the object to JsonObject (Runs toJsonRecursive())
-     * @return The rendered JsonObject
+     * Encode the object to JsonObject with specified action.
+     * @return The encoded JsonObject
+     * @param action The action to run
+     * @throws RuntimeException If the field type is not supported
      */
     public JsonObject toJson(JSONCodableAction action) {
         Class<?> reflectedClass = this.getClass();
@@ -126,6 +165,12 @@ public abstract class DataObject2 implements Serializable {
         return json;
     }
 
+    /**
+     * Checks if the field has the annotation for the specified action
+     * @param action The action to check
+     * @param field The field to check
+     * @return If the field has the annotation for the specified action
+     */
     private static boolean isHasAnnotationForCodable(JSONCodableAction action, Field field) {
         Annotation[] annotations = field.getAnnotations();
         boolean hasAnnotationForExportAction = false;
@@ -144,16 +189,16 @@ public abstract class DataObject2 implements Serializable {
     }
 
     /**
-     * Render the object to JsonObject, then converts it to a String (Runs toJson())
-     * @return The rendered JsonObject with beautified Json
+     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY))
+     * @return The encoded JsonObject with beautified Json
      */
     public String toJsonString() {
         return JsonBeautifier.beautify(toJson(JSONCodableAction.STRINGIFY));
     }
 
     /**
-     * Render the object to JsonObject, then converts it to a String (Runs toJson())
-     * @return The rendered JsonObject with non-beautified Json
+     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY))
+     * @return The encoded JsonObject with non-beautified Json
      */
     public String toString() {
         return toJson(JSONCodableAction.STRINGIFY).toString();
@@ -263,6 +308,12 @@ public abstract class DataObject2 implements Serializable {
         }
     }
 
+    /**
+     * Saves the object as a Json string to the specified path under SubsystemEnvironment
+     * @param env The SubsystemEnvironment to save to
+     * @param path The path in the subsystem environment to save to
+     * @return If the save was successful
+     */
     public boolean save(SubsystemEnvironment env, String path) {
         try {
             env.writeString(path, toJsonString());
@@ -272,10 +323,16 @@ public abstract class DataObject2 implements Serializable {
         }
     }
 
-    public <T extends DataObject2> T load(SubsystemEnvironment env, String path, Class<T> clazz) {
+    /**
+     * Loads the object from the specified path
+     * @param path The path to load from
+     * @param clazz The class which extends DataObject2 to parse to
+     * @return The loaded object
+     */
+    public <T extends DataObject2> T load(String path, Class<T> clazz) {
         try {
             T obj = clazz.getDeclaredConstructor().newInstance();
-            obj.fromJsonString(env.readString(path));
+            obj.fromJsonString(StringIO.readFileFromDisk(path));
             this.fromJsonString(obj.toJsonString());
             return obj;
         }catch (Exception e) {
@@ -283,10 +340,17 @@ public abstract class DataObject2 implements Serializable {
         }
     }
 
-    public <T extends DataObject2> T load(String path, Class<T> clazz) {
+    /**
+     * Loads the object from the specified path under SubsystemEnvironment
+     * @param env The SubsystemEnvironment to load from
+     * @param path The path in the subsystem environment to load from
+     * @param clazz The class which extends DataObject2 to parse to
+     * @return The loaded object
+     */
+    public <T extends DataObject2> T load(SubsystemEnvironment env, String path, Class<T> clazz) {
         try {
             T obj = clazz.getDeclaredConstructor().newInstance();
-            obj.fromJsonString(StringIO.readFileFromDisk(path));
+            obj.fromJsonString(env.readString(path));
             this.fromJsonString(obj.toJsonString());
             return obj;
         }catch (Exception e) {
