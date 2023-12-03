@@ -258,4 +258,60 @@ public abstract class DataObject implements Serializable {
         }
     }
 
+    public boolean dataFieldEquals(Object o) {
+        return dataFieldEquals(o, new ArrayList<>(), false);
+    }
+
+    public boolean dataFieldEquals(Object o, ArrayList<String> exceptionFieldNames) {
+        return dataFieldEquals(o, exceptionFieldNames, false);
+    }
+
+    public boolean dataFieldEquals(Object o, boolean arrayOrderSensitive) {
+        return dataFieldEquals(o, new ArrayList<>(), arrayOrderSensitive);
+    }
+
+    public boolean dataFieldEquals(Object o, ArrayList<String> exceptionFieldNames, boolean arrayOrderSensitive) {
+        // Compare current fields and the fields of the object
+        Class<?> reflectedClass = this.getClass();
+
+        Field[] declaredFields = reflectedClass.getDeclaredFields();
+        Field[] declaredFields2 = o.getClass().getDeclaredFields();
+
+        // Check if the fields are the same
+        if (declaredFields.length != declaredFields2.length) return false;
+        for (Field field : declaredFields) {
+            if (!Utils.arrayContains(declaredFields2, field)) return false;
+        }
+
+        // Check if the values are the same
+        for (Field field : declaredFields) {
+            field.setAccessible(true);
+            try {
+                // Get type
+                Class<?> type = field.getType();
+                String typeName = type.getName();
+
+                // Check if the field is in the exception list
+                if (exceptionFieldNames.contains(field.getName())) continue;
+
+                // Check if the field is an array or list
+                if (typeName.startsWith("[L") || typeName.equals(ArrayList.class.getName()) || typeName.equals(List.class.getName())) {
+                    if (!arrayOrderSensitive) {
+                        Object[] array1 = (Object[]) field.get(this);
+                        Object[] array2 = (Object[]) field.get(o);
+                        if (!Utils.arrayEquals(array1, array2)) return false;
+                    }else {
+                        if (!field.get(this).equals(field.get(o))) return false;
+                    }
+                }else {
+                    if (!field.get(this).equals(field.get(o))) return false;
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException("Failed to compare '" + field.getName() + "' (" + field.getType() + ") to '" + o.getClass().getName() + "'.");
+            }
+        }
+
+        return true;
+    }
 }
