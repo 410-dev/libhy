@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.hysong.libhyextended.Utils;
 import me.hysong.libhyextended.environment.SubsystemEnvironment;
-import me.hysong.libhyextended.objects.DataObject;
 import me.hysong.libhyextended.objects.exception.DataFieldMismatchException;
 import me.hysong.libhyextended.utils.ArrayFromJsonArrayConverter;
 import me.hysong.libhyextended.utils.ArrayToJsonArrayConverter;
@@ -146,9 +145,11 @@ public abstract class DataObject2 implements Serializable {
 
         JsonObject json = new JsonObject();
 
+        boolean isTypeHasCodableAnnotation = hasAnnotationForCodable(action, reflectedClass.getAnnotations());
+
         for (Field field : declaredFields) {
             field.setAccessible(true);
-            if (!isHasAnnotationForCodable(action, field)) continue;
+            if (!isTypeHasCodableAnnotation && !hasAnnotationForCodable(action, field.getAnnotations())) continue;
 
             try {
                 // Get type
@@ -168,11 +169,10 @@ public abstract class DataObject2 implements Serializable {
     /**
      * Checks if the field has the annotation for the specified action
      * @param action The action to check
-     * @param field The field to check
+     * @param annotations The field to check
      * @return If the field has the annotation for the specified action
      */
-    private static boolean isHasAnnotationForCodable(JSONCodableAction action, Field field) {
-        Annotation[] annotations = field.getAnnotations();
+    private static boolean hasAnnotationForCodable(JSONCodableAction action, Annotation[] annotations) {
         boolean hasAnnotationForExportAction = false;
         for (Annotation annotation : annotations) {
             // Get JSONCodableAction enum, where field is action
@@ -183,6 +183,23 @@ public abstract class DataObject2 implements Serializable {
                         break;
                     }
                 }
+            }
+        }
+        return hasAnnotationForExportAction;
+    }
+
+    /**
+     * Checks if the field has @Comparable annotation
+     * @param annotations The annotations to check
+     * @return If the field has the annotation for the specified action
+     */
+    private static boolean hasAnnotationForComparable(Annotation[] annotations) {
+        boolean hasAnnotationForExportAction = false;
+        for (Annotation annotation : annotations) {
+            // Get JSONCodableAction enum, where field is action
+            if (annotation instanceof Comparable) {
+                hasAnnotationForExportAction = true;
+                break;
             }
         }
         return hasAnnotationForExportAction;
@@ -432,20 +449,15 @@ public abstract class DataObject2 implements Serializable {
             if (!Utils.arrayContains(declaredFields2, field)) return false;
         }
 
+        // Check if type is comparable
+        boolean isTypeHasComparableAnnotation = hasAnnotationForComparable(reflectedClass.getAnnotations());
+
         // Check if the values are the same
         for (Field field : declaredFields) {
             field.setAccessible(true);
 
             // Check if field has @Comparable annotation
-            Annotation[] annotations = field.getAnnotations();
-            boolean hasAnnotationForComparable = false;
-            for (Annotation annotation : annotations) {
-                if (annotation instanceof Comparable) {
-                    hasAnnotationForComparable = true;
-                    break;
-                }
-            }
-            if (!hasAnnotationForComparable) continue;
+            if (!isTypeHasComparableAnnotation && !hasAnnotationForComparable(field.getAnnotations())) continue;
 
             try {
                 // Get type
