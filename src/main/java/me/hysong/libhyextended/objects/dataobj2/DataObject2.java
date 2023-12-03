@@ -299,6 +299,49 @@ public abstract class DataObject2 implements Serializable {
         }
     }
 
+    /**
+     * Maps the variables from the JsonObject to the object, then returns the object immediately.
+     * @param o The JsonObject to map from
+     * @param clazz The class to map to
+     * @param <T> The class to map to
+     * @return The mapped object
+     * @throws DataFieldMismatchException If the field type or name is not the same as the one in the object
+     */
+    public <T extends DataObject2> T fromJson(JsonObject o, Class<T> clazz) throws DataFieldMismatchException {
+        try {
+            T obj = clazz.getDeclaredConstructor().newInstance();
+            obj.fromJson(o);
+            return obj;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Maps the variables from the JsonString to the object, then returns the object immediately.
+     * @param json The JsonString to map from
+     * @param clazz The class to map to
+     * @param <T> The class to map to
+     * @return The mapped object
+     * @throws DataFieldMismatchException If the field type or name is not the same as the one in the object
+     */
+    public <T extends DataObject2> T fromJsonString(String json, Class<T> clazz) throws DataFieldMismatchException {
+        try {
+            T obj = clazz.getDeclaredConstructor().newInstance();
+            obj.fromJsonString(json);
+            return obj;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Saves the object as a Json string to the specified path
+     * @param path The path to save to
+     * @return If the save was successful
+     */
     public boolean save(String path) {
         try {
             StringIO.writeFileToDisk(path, toJsonString());
