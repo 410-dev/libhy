@@ -5,10 +5,10 @@ import me.hysong.libhyextended.utils.JsonBeautifier;
 
 public class TestObject extends DataObject2 {
 
-    @JSONCodable private String name = "";
-    @JSONCodable private int age = 0;
+    @Comparable @JSONCodable private String name = "";
+    @Comparable @JSONCodable private int age = 0;
     @JSONCodable private boolean isMale = true;
-    @JSONCodable(codableOn = JSONCodableAction.STRINGIFY) private String notConvertable = "";
+    @Comparable @JSONCodable(codableOn = JSONCodableAction.STRINGIFY) private String notConvertable = "";
     private String notExportable = "Wala";
 
     public TestObject() {
@@ -40,6 +40,13 @@ public class TestObject extends DataObject2 {
         obj3Orig.notConvertable = "This is not convertable!!!";
         obj3.fromJson(obj3Orig.toJson());
         System.out.println(JsonBeautifier.beautify(obj3.toJson()));
+
+        TestObject obj4 = new TestObject();
+        TestObject obj5 = new TestObject();
+
+        obj4.isMale = false;
+
+        System.out.println(obj4.dataFieldEquals(obj5));
     }
 
 }
