@@ -42,12 +42,12 @@ public class Utils {
 
     /**
      * Find maximum integer in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return Maximum integer
      */
-    public static int max(int[] list) {
+    public static int max(int[] array) {
         int max = Integer.MIN_VALUE;
-        for (int i : list) {
+        for (int i : array) {
             if (i > max) max = i;
         }
         return max;
@@ -55,12 +55,12 @@ public class Utils {
 
     /**
      * Find minimum integer in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return Minimum integer
      */
-    public static int min(int[] list) {
+    public static int min(int[] array) {
         int min = Integer.MAX_VALUE;
-        for (int i : list) {
+        for (int i : array) {
             if (i < min) min = i;
         }
         return min;
@@ -68,12 +68,12 @@ public class Utils {
 
     /**
      * Sum all integers in an array
-     * @param list Array to sum
+     * @param array Array to sum
      * @return Sum of all integers in an array
      */
-    public static int sum(int[] list) {
+    public static int sum(int[] array) {
         int sum = 0;
-        for (int i : list) {
+        for (int i : array) {
             sum += i;
         }
         return sum;
@@ -81,33 +81,33 @@ public class Utils {
 
     /**
      * Find average of all integers in an array
-     * @param list Array to average
+     * @param array Array to average
      * @return Average of all integers in an array
      */
-    public static int avg(int[] list) {
-        return sum(list) / list.length;
+    public static int avg(int[] array) {
+        return sum(array) / array.length;
     }
 
     /**
      * Find median of all integers in an array
-     * @param list Array to find median of
+     * @param array Array to find median of
      * @return Median of all integers in an array
      */
-    public static int median(int[] list) {
-        return list[list.length / 2];
+    public static int median(int[] array) {
+        return array[array.length / 2];
     }
 
     /**
      * Find mode of all integers in an array
-     * @param list Array to find mode of
+     * @param array Array to find mode of
      * @return Mode of all integers in an array
      */
-    public static int mode(int[] list) {
+    public static int mode(int[] array) {
         int mode = 0;
         int max = 0;
-        for (int i : list) {
+        for (int i : array) {
             int count = 0;
-            for (int j : list) {
+            for (int j : array) {
                 if (i == j) count++;
             }
             if (count > max) {
@@ -120,11 +120,11 @@ public class Utils {
 
     /**
      * Find difference between maximum and minimum integers in an array
-     * @param list Array to find difference of
+     * @param array Array to find difference of
      * @return Difference between maximum and minimum integers in an array
      */
-    public static int maxDifference(int[] list) {
-        return max(list) - min(list);
+    public static int maxDifference(int[] array) {
+        return max(array) - min(array);
     }
 
     /**
@@ -163,12 +163,12 @@ public class Utils {
 
     /**
      * Find maximum short in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return  Maximum short
      */
-    public static short max(short[] list) {
+    public static short max(short[] array) {
         short max = Short.MIN_VALUE;
-        for (short i : list) {
+        for (short i : array) {
             if (i > max) max = i;
         }
         return max;
@@ -176,12 +176,12 @@ public class Utils {
 
     /**
      * Find minimum short in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return Minimum short
      */
-    public static short min(short[] list) {
+    public static short min(short[] array) {
         short min = Short.MAX_VALUE;
-        for (short i : list) {
+        for (short i : array) {
             if (i < min) min = i;
         }
         return min;
@@ -189,12 +189,12 @@ public class Utils {
 
     /**
      * Sum all shorts in an array
-     * @param list Array to sum
+     * @param array Array to sum
      * @return Sum of all shorts in an array
      */
-    public static short sum(short[] list) {
+    public static short sum(short[] array) {
         short sum = 0;
-        for (short i : list) {
+        for (short i : array) {
             sum += i;
         }
         return sum;
@@ -202,33 +202,33 @@ public class Utils {
 
     /**
      * Find average of all shorts in an array
-     * @param list Array to average
+     * @param array Array to average
      * @return Average of all shorts in an array
      */
-    public static short avg(short[] list) {
-        return (short) (sum(list) / list.length);
+    public static short avg(short[] array) {
+        return (short) (sum(array) / array.length);
     }
 
     /**
      * Find median of all shorts in an array
-     * @param list Array to find median of
+     * @param array Array to find median of
      * @return Median of all shorts in an array
      */
-    public static short median(short[] list) {
-        return list[list.length / 2];
+    public static short median(short[] array) {
+        return array[array.length / 2];
     }
 
     /**
      * Find mode of all shorts in an array
-     * @param list Array to find mode of
+     * @param array Array to find mode of
      * @return Mode of all shorts in an array
      */
-    public static short mode(short[] list) {
+    public static short mode(short[] array) {
         short mode = 0;
         short max = 0;
-        for (short i : list) {
+        for (short i : array) {
             short count = 0;
-            for (short j : list) {
+            for (short j : array) {
                 if (i == j) count++;
             }
             if (count > max) {
@@ -241,11 +241,11 @@ public class Utils {
 
     /**
      * Find difference between maximum and minimum shorts in an array
-     * @param list Array to find difference of
+     * @param array Array to find difference of
      * @return Difference between maximum and minimum shorts in an array
      */
-    public static short maxDifference(short[] list) {
-        return (short) (max(list) - min(list));
+    public static short maxDifference(short[] array) {
+        return (short) (max(array) - min(array));
     }
 
     /**
@@ -284,12 +284,12 @@ public class Utils {
 
     /**
      * Find maximum long in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return  Maximum long
      */
-    public static long max(long[] list) {
+    public static long max(long[] array) {
         long max = Long.MIN_VALUE;
-        for (long i : list) {
+        for (long i : array) {
             if (i > max) max = i;
         }
         return max;
@@ -297,12 +297,12 @@ public class Utils {
 
     /**
      * Find minimum long in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return Minimum long
      */
-    public static long min(long[] list) {
+    public static long min(long[] array) {
         long min = Long.MAX_VALUE;
-        for (long i : list) {
+        for (long i : array) {
             if (i < min) min = i;
         }
         return min;
@@ -310,12 +310,12 @@ public class Utils {
 
     /**
      * Sum all longs in an array
-     * @param list Array to sum
+     * @param array Array to sum
      * @return Sum of all longs in an array
      */
-    public static long sum(long[] list) {
+    public static long sum(long[] array) {
         long sum = 0;
-        for (long i : list) {
+        for (long i : array) {
             sum += i;
         }
         return sum;
@@ -323,33 +323,33 @@ public class Utils {
 
     /**
      * Find average of all longs in an array
-     * @param list Array to average
+     * @param array Array to average
      * @return Average of all longs in an array
      */
-    public static long avg(long[] list) {
-        return sum(list) / list.length;
+    public static long avg(long[] array) {
+        return sum(array) / array.length;
     }
 
     /**
      * Find median of all longs in an array
-     * @param list Array to find median of
+     * @param array Array to find median of
      * @return Median of all longs in an array
      */
-    public static long median(long[] list) {
-        return list[list.length / 2];
+    public static long median(long[] array) {
+        return array[array.length / 2];
     }
 
     /**
      * Find mode of all longs in an array
-     * @param list Array to find mode of
+     * @param array Array to find mode of
      * @return Mode of all longs in an array
      */
-    public static long mode(long[] list) {
+    public static long mode(long[] array) {
         long mode = 0;
         long max = 0;
-        for (long i : list) {
+        for (long i : array) {
             long count = 0;
-            for (long j : list) {
+            for (long j : array) {
                 if (i == j) count++;
             }
             if (count > max) {
@@ -362,11 +362,11 @@ public class Utils {
 
     /**
      * Find difference between maximum and minimum longs in an array
-     * @param list Array to find difference of
+     * @param array Array to find difference of
      * @return Difference between maximum and minimum longs in an array
      */
-    public static long maxDifference(long[] list) {
-        return max(list) - min(list);
+    public static long maxDifference(long[] array) {
+        return max(array) - min(array);
     }
 
     /**
@@ -405,12 +405,12 @@ public class Utils {
 
     /**
      * Find maximum float in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return  Maximum float
      */
-    public static float max(float[] list) {
+    public static float max(float[] array) {
         float max = Float.MIN_VALUE;
-        for (float i : list) {
+        for (float i : array) {
             if (i > max) max = i;
         }
         return max;
@@ -418,12 +418,12 @@ public class Utils {
 
     /**
      * Find minimum float in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return Minimum float
      */
-    public static float min(float[] list) {
+    public static float min(float[] array) {
         float min = Float.MAX_VALUE;
-        for (float i : list) {
+        for (float i : array) {
             if (i < min) min = i;
         }
         return min;
@@ -431,12 +431,12 @@ public class Utils {
 
     /**
      * Sum all floats in an array
-     * @param list Array to sum
+     * @param array Array to sum
      * @return Sum of all floats in an array
      */
-    public static float sum(float[] list) {
+    public static float sum(float[] array) {
         float sum = 0;
-        for (float i : list) {
+        for (float i : array) {
             sum += i;
         }
         return sum;
@@ -444,33 +444,33 @@ public class Utils {
 
     /**
      * Find average of all floats in an array
-     * @param list Array to average
+     * @param array Array to average
      * @return Average of all floats in an array
      */
-    public static float avg(float[] list) {
-        return sum(list) / list.length;
+    public static float avg(float[] array) {
+        return sum(array) / array.length;
     }
 
     /**
      * Find median of all floats in an array
-     * @param list Array to find median of
+     * @param array Array to find median of
      * @return Median of all floats in an array
      */
-    public static float median(float[] list) {
-        return list[list.length / 2];
+    public static float median(float[] array) {
+        return array[array.length / 2];
     }
 
     /**
      * Find mode of all floats in an array
-     * @param list Array to find mode of
+     * @param array Array to find mode of
      * @return Mode of all floats in an array
      */
-    public static float mode(float[] list) {
+    public static float mode(float[] array) {
         float mode = 0;
         float max = 0;
-        for (float i : list) {
+        for (float i : array) {
             float count = 0;
-            for (float j : list) {
+            for (float j : array) {
                 if (i == j) count++;
             }
             if (count > max) {
@@ -483,11 +483,11 @@ public class Utils {
 
     /**
      * Find difference between maximum and minimum floats in an array
-     * @param list Array to find difference of
+     * @param array Array to find difference of
      * @return Difference between maximum and minimum floats in an array
      */
-    public static float maxDifference(float[] list) {
-        return max(list) - min(list);
+    public static float maxDifference(float[] array) {
+        return max(array) - min(array);
     }
 
     /**
@@ -526,12 +526,12 @@ public class Utils {
 
     /**
      * Find maximum double in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return  Maximum double
      */
-    public static double max(double[] list) {
+    public static double max(double[] array) {
         double max = Double.MIN_VALUE;
-        for (double i : list) {
+        for (double i : array) {
             if (i > max) max = i;
         }
         return max;
@@ -539,12 +539,12 @@ public class Utils {
 
     /**
      * Find minimum double in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return Minimum double
      */
-    public static double min(double[] list) {
+    public static double min(double[] array) {
         double min = Double.MAX_VALUE;
-        for (double i : list) {
+        for (double i : array) {
             if (i < min) min = i;
         }
         return min;
@@ -552,12 +552,12 @@ public class Utils {
 
     /**
      * Sum all doubles in an array
-     * @param list Array to sum
+     * @param array Array to sum
      * @return Sum of all doubles in an array
      */
-    public static double sum(double[] list) {
+    public static double sum(double[] array) {
         double sum = 0;
-        for (double i : list) {
+        for (double i : array) {
             sum += i;
         }
         return sum;
@@ -565,33 +565,33 @@ public class Utils {
 
     /**
      * Find average of all doubles in an array
-     * @param list Array to average
+     * @param array Array to average
      * @return Average of all doubles in an array
      */
-    public static double avg(double[] list) {
-        return sum(list) / list.length;
+    public static double avg(double[] array) {
+        return sum(array) / array.length;
     }
 
     /**
      * Find median of all doubles in an array
-     * @param list Array to find median of
+     * @param array Array to find median of
      * @return Median of all doubles in an array
      */
-    public static double median(double[] list) {
-        return list[list.length / 2];
+    public static double median(double[] array) {
+        return array[array.length / 2];
     }
 
     /**
      * Find mode of all doubles in an array
-     * @param list Array to find mode of
+     * @param array Array to find mode of
      * @return Mode of all doubles in an array
      */
-    public static double mode(double[] list) {
+    public static double mode(double[] array) {
         double mode = 0;
         double max = 0;
-        for (double i : list) {
+        for (double i : array) {
             double count = 0;
-            for (double j : list) {
+            for (double j : array) {
                 if (i == j) count++;
             }
             if (count > max) {
@@ -604,11 +604,11 @@ public class Utils {
 
     /**
      * Find difference between maximum and minimum doubles in an array
-     * @param list Array to find difference of
+     * @param array Array to find difference of
      * @return Difference between maximum and minimum doubles in an array
      */
-    public static double maxDifference(double[] list) {
-        return max(list) - min(list);
+    public static double maxDifference(double[] array) {
+        return max(array) - min(array);
     }
 
     /**
@@ -647,12 +647,12 @@ public class Utils {
 
     /**
      * Find maximum byte in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return  Maximum byte
      */
-    public static byte max(byte[] list) {
+    public static byte max(byte[] array) {
         byte max = Byte.MIN_VALUE;
-        for (byte i : list) {
+        for (byte i : array) {
             if (i > max) max = i;
         }
         return max;
@@ -660,12 +660,12 @@ public class Utils {
 
     /**
      * Find minimum byte in an array
-     * @param list Array to search
+     * @param array Array to search
      * @return Minimum byte
      */
-    public static byte min(byte[] list) {
+    public static byte min(byte[] array) {
         byte min = Byte.MAX_VALUE;
-        for (byte i : list) {
+        for (byte i : array) {
             if (i < min) min = i;
         }
         return min;
@@ -673,12 +673,12 @@ public class Utils {
 
     /**
      * Sum all bytes in an array
-     * @param list Array to sum
+     * @param array Array to sum
      * @return Sum of all bytes in an array
      */
-    public static byte sum(byte[] list) {
+    public static byte sum(byte[] array) {
         byte sum = 0;
-        for (byte i : list) {
+        for (byte i : array) {
             sum += i;
         }
         return sum;
@@ -686,33 +686,34 @@ public class Utils {
 
     /**
      * Find average of all bytes in an array
-     * @param list Array to average
+     * @param array Array to average
      * @return Average of all bytes in an array
      */
-    public static byte avg(byte[] list) {
-        return (byte) (sum(list) / list.length);
+    public static byte avg(byte[] array) {
+        return (byte) (sum(array) / array.length);
     }
+
 
     /**
      * Find median of all bytes in an array
-     * @param list Array to find median of
+     * @param array Array to find median of
      * @return Median of all bytes in an array
      */
-    public static byte median(byte[] list) {
-        return list[list.length / 2];
+    public static byte median(byte[] array) {
+        return array[array.length / 2];
     }
 
     /**
      * Find mode of all bytes in an array
-     * @param list Array to find mode of
+     * @param array Array to find mode of
      * @return Mode of all bytes in an array
      */
-    public static byte mode(byte[] list) {
+    public static byte mode(byte[] array) {
         byte mode = 0;
         byte max = 0;
-        for (byte i : list) {
+        for (byte i : array) {
             byte count = 0;
-            for (byte j : list) {
+            for (byte j : array) {
                 if (i == j) count++;
             }
             if (count > max) {
@@ -725,11 +726,11 @@ public class Utils {
 
     /**
      * Find difference between maximum and minimum bytes in an array
-     * @param list Array to find difference of
+     * @param array Array to find difference of
      * @return Difference between maximum and minimum bytes in an array
      */
-    public static byte maxDifference(byte[] list) {
-        return (byte) (max(list) - min(list));
+    public static byte maxDifference(byte[] array) {
+        return (byte) (max(array) - min(array));
     }
 
     /**
@@ -916,10 +917,10 @@ public class Utils {
     /**
      * Check if an element is in given array or list
      * @param element Element to check
-     * @param list Array to check
+     * @param array Array to check
      */
-    public static <T> boolean arrayContains(T[] list, T element) {
-        for (T i : list) {
+    public static <T> boolean arrayContains(T[] array, T element) {
+        for (T i : array) {
             if (i.equals(element)) return true;
         }
         return false;
