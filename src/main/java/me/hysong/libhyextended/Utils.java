@@ -937,14 +937,33 @@ public class Utils {
         return false;
     }
 
+    /**
+     * If value is null, return defaultValue, else return value.
+     * @param value Value to check - can be null
+     * @param defaultValue Default value to return if value is null
+     * @return Value if not null, else defaultValue
+     * @param <T> Type of value
+     */
     public static <T> T defaultValue(T value, T defaultValue) {
         return value == null ? defaultValue : value;
     }
 
+    /**
+     * Get last element of an array
+     * @param array Array to get last element of
+     * @param <T> Type of array
+     * @return Last element of an array
+     */
     public static <T> T last(T[] array) {
         return array[array.length - 1];
     }
 
+    /**
+     * Get last element of a list
+     * @param list List to get last element of
+     * @param <T> Type of list
+     * @return Last element of a list
+     */
     public static <T> T last(List<T> list) {
         return list.get(list.size() - 1);
     }
@@ -977,6 +996,12 @@ public class Utils {
         return arguments.toArray(new String[0]);
     }
 
+    /**
+     * Get a parameter from arguments. For example, if the arguments are ["-p", "1234", "-h", "localhost"], and the parameter is "-p", then "1234" will be returned.
+     * @param args Arguments to search
+     * @param parameter Parameter to search for
+     * @return Value of parameter
+     */
     public static String getParameterFromArguments(String[] args, String parameter) {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals(parameter) && i + 1 < args.length) {
@@ -986,18 +1011,34 @@ public class Utils {
         return null;
     }
 
+    /**
+     * Get the middle number between two numbers
+     * @param start Start number
+     * @param end End number
+     * @return Middle number
+     */
     public static int middle(int start, int end) {
         return ((end - start) / 2) + start;
     }
 
-//    public static int half(int i) {
-//
-//    }
-
+    /**
+     * Copy a file, in binary format, from source to destination. The original file name will be used as a new file name.
+     * @param source Source file
+     * @param destination Destination directory
+     * @throws IOException If an I/O error occurs
+     */
     public static void copy(String source, String destination) throws IOException {
         File f = new File(source);
         copy(source, destination, f.getName());
     }
+
+    /**
+     * Copy a file, in binary format, from source to destination.
+     * @param source Source file
+     * @param destination Destination directory
+     * @param fileName New file name
+     * @throws IOException If an I/O error occurs
+     */
     public static void copy(String source, String destination, String fileName) throws IOException {
         File sourceFile = new File(source);
         File destinationFile = new File(destination, fileName);
@@ -1013,6 +1054,13 @@ public class Utils {
     }
 
 
+    /**
+     * Center a component in a parent component by calculating the middle point of the parent component and the component to be centered.
+     * @param c Component to center
+     * @param parentWidth Width of parent component
+     * @param parentHeight Height of parent component
+     * @return Centered component
+     */
     public static Component center(Component c, int parentWidth, int parentHeight) {
         int midPWidth = middle(0, parentWidth);
         int midPHeight = middle(0, parentHeight);
