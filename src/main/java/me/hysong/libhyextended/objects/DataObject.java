@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Deprecated
 public abstract class DataObject implements Serializable {
 
     private boolean verbose = false;
