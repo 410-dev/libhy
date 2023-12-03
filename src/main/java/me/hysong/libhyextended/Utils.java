@@ -767,6 +767,153 @@ public class Utils {
     }
 
     /**
+     * Find maximum object in a list, and returns the maximum object. The object has to be numeric (Integer, Long, Float, Double, Byte, Short).
+     * @param list List to search
+     * @return Maximum object
+     */
+    public static Object max(List<?> list) {
+        // Check instance of first element
+        if (list.get(0) instanceof Integer) {
+            return (int) max(list.stream().mapToInt(i -> (int) i).toArray());
+        } else if (list.get(0) instanceof Long) {
+            return (long) max(list.stream().mapToLong(i -> (long) i).toArray());
+        } else if (list.get(0) instanceof Float) {
+            return (float) max(list.stream().mapToDouble(i -> (float) i).toArray());
+        } else if (list.get(0) instanceof Double) {
+            return (double) max(list.stream().mapToDouble(i -> (double) i).toArray());
+        } else if (list.get(0) instanceof Byte) {
+            return (byte) max(list.stream().mapToInt(i -> (byte) i).toArray());
+        } else if (list.get(0) instanceof Short) {
+            return (short) max(list.stream().mapToInt(i -> (short) i).toArray());
+        } else {
+            throw new IllegalArgumentException("Unsupported type: " + list.get(0).getClass().getName());
+        }
+    }
+
+    /**
+     * Find minimum object in a list, and returns the minimum object. The object has to be numeric (Integer, Long, Float, Double, Byte, Short).
+     * @param list List to search
+     * @return Minimum object
+     */
+    public static Object min(List<?> list) {
+        // Check instance of first element
+        if (list.get(0) instanceof Integer) {
+            return (int) min(list.stream().mapToInt(i -> (int) i).toArray());
+        } else if (list.get(0) instanceof Long) {
+            return (long) min(list.stream().mapToLong(i -> (long) i).toArray());
+        } else if (list.get(0) instanceof Float) {
+            return (float) min(list.stream().mapToDouble(i -> (float) i).toArray());
+        } else if (list.get(0) instanceof Double) {
+            return (double) min(list.stream().mapToDouble(i -> (double) i).toArray());
+        } else if (list.get(0) instanceof Byte) {
+            return (byte) min(list.stream().mapToInt(i -> (byte) i).toArray());
+        } else if (list.get(0) instanceof Short) {
+            return (short) min(list.stream().mapToInt(i -> (short) i).toArray());
+        } else {
+            throw new IllegalArgumentException("Unsupported type: " + list.get(0).getClass().getName());
+        }
+    }
+
+    /**
+     * Finds sum of all objects in the list, and returns the sum as an object. The object has to be numeric (Integer, Long, Float, Double, Byte, Short).
+     * @param list List to find median of
+     * @return Median of all ints in a list
+     */
+    private static Object sum(List<?> list) {
+        Object sum = 0;
+        for (Object i : list) {
+            if (i instanceof Integer) {
+                sum = (int) sum + (int) i;
+            } else if (i instanceof Long) {
+                sum = (long) sum + (long) i;
+            } else if (i instanceof Float) {
+                sum = (float) sum + (float) i;
+            } else if (i instanceof Double) {
+                sum = (double) sum + (double) i;
+            } else if (i instanceof Byte) {
+                sum = (byte) sum + (byte) i;
+            } else if (i instanceof Short) {
+                sum = (short) sum + (short) i;
+            } else {
+                throw new IllegalArgumentException("Unsupported type: " + i.getClass().getName());
+            }
+        }
+        return sum;
+    }
+
+    /**
+     * Finds average of all objects in the list, and returns the average as an object. The object has to be numeric (Integer, Long, Float, Double, Byte, Short).
+     * @param list List to average
+     * @return Average of all ints in a list
+     */
+    public static Object avg(List<?> list) {
+        // Check instance of first element
+        if (list.get(0) instanceof Integer) {
+            return (int) sum(list) / list.size();
+        } else if (list.get(0) instanceof Long) {
+            return (long) sum(list) / list.size();
+        } else if (list.get(0) instanceof Float) {
+            return (float) sum(list) / list.size();
+        } else if (list.get(0) instanceof Double) {
+            return (double) sum(list) / list.size();
+        } else if (list.get(0) instanceof Byte) {
+            return (byte) sum(list) / list.size();
+        } else if (list.get(0) instanceof Short) {
+            return (short) sum(list) / list.size();
+        } else {
+            throw new IllegalArgumentException("Unsupported type: " + list.get(0).getClass().getName());
+        }
+    }
+
+    /**
+     * Finds median of all objects in the list, and returns the median as an object. The object has to be numeric (Integer, Long, Float, Double, Byte, Short).
+     * @param list List to find median of
+     * @return Median of all ints in a list
+     */
+    public static Object median(List<?> list) {
+        // Check instance of first element
+        if (list.get(0) instanceof Integer) {
+            return (int) median(list.stream().mapToInt(i -> (int) i).toArray());
+        } else if (list.get(0) instanceof Long) {
+            return (long) median(list.stream().mapToLong(i -> (long) i).toArray());
+        } else if (list.get(0) instanceof Float) {
+            return (float) median(list.stream().mapToDouble(i -> (float) i).toArray());
+        } else if (list.get(0) instanceof Double) {
+            return (double) median(list.stream().mapToDouble(i -> (double) i).toArray());
+        } else if (list.get(0) instanceof Byte) {
+            return (byte) median(list.stream().mapToInt(i -> (byte) i).toArray());
+        } else if (list.get(0) instanceof Short) {
+            return (short) median(list.stream().mapToInt(i -> (short) i).toArray());
+        } else {
+            throw new IllegalArgumentException("Unsupported type: " + list.get(0).getClass().getName());
+        }
+    }
+
+    /**
+     * Finds mode of all objects in the list, and returns the mode as an object. The object has to be numeric (Integer, Long, Float, Double, Byte, Short).
+     * @param list List to find mode of
+     * @return Mode of all ints in a list
+     */
+    public static Object mode(List<?> list) {
+        // Check instance of first element
+        if (list.get(0) instanceof Integer) {
+            return (int) mode(list.stream().mapToInt(i -> (int) i).toArray());
+        } else if (list.get(0) instanceof Long) {
+            return (long) mode(list.stream().mapToLong(i -> (long) i).toArray());
+        } else if (list.get(0) instanceof Float) {
+            return (float) mode(list.stream().mapToDouble(i -> (float) i).toArray());
+        } else if (list.get(0) instanceof Double) {
+            return (double) mode(list.stream().mapToDouble(i -> (double) i).toArray());
+        } else if (list.get(0) instanceof Byte) {
+            return (byte) mode(list.stream().mapToInt(i -> (byte) i).toArray());
+        } else if (list.get(0) instanceof Short) {
+            return (short) mode(list.stream().mapToInt(i -> (short) i).toArray());
+        } else {
+            throw new IllegalArgumentException("Unsupported type: " + list.get(0).getClass().getName());
+        }
+    }
+
+    /**
      * Check if an element is in given array or list
      * @param element Element to check
      * @param list Array to check
