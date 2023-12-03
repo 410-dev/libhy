@@ -401,19 +401,25 @@ public abstract class DataObject2 implements Serializable {
         }
     }
 
+    /**
+     * Checks if the data fields of the object are the same as the specified object
+     * Annotation @Comparable is required for the field to be compared!
+     * @param o The object to compare to
+     * @return If the data fields of the object are the same as the specified object
+     */
     public boolean dataFieldEquals(Object o) {
-        return dataFieldEquals(o, new ArrayList<>(), false);
+        return dataFieldEquals(o, false);
     }
 
-    public boolean dataFieldEquals(Object o, ArrayList<String> exceptionFieldNames) {
-        return dataFieldEquals(o, exceptionFieldNames, false);
-    }
-
+    /**
+     * Checks if the data fields of the object are the same as the specified object
+     * If arrayOrderSensitive is false, the order of the array does not matter.
+     * Annotation @Comparable is required for the field to be compared!
+     * @param o The object to compare to
+     * @param arrayOrderSensitive If the order of the array matters
+     * @return If the data fields of the object are the same as the specified object
+     */
     public boolean dataFieldEquals(Object o, boolean arrayOrderSensitive) {
-        return dataFieldEquals(o, new ArrayList<>(), arrayOrderSensitive);
-    }
-
-    public boolean dataFieldEquals(Object o, ArrayList<String> exceptionFieldNames, boolean arrayOrderSensitive) {
         // Compare current fields and the fields of the object
         Class<?> reflectedClass = this.getClass();
 
@@ -429,13 +435,22 @@ public abstract class DataObject2 implements Serializable {
         // Check if the values are the same
         for (Field field : declaredFields) {
             field.setAccessible(true);
+
+            // Check if field has @Comparable annotation
+            Annotation[] annotations = field.getAnnotations();
+            boolean hasAnnotationForComparable = false;
+            for (Annotation annotation : annotations) {
+                if (annotation instanceof Comparable) {
+                    hasAnnotationForComparable = true;
+                    break;
+                }
+            }
+            if (!hasAnnotationForComparable) continue;
+
             try {
                 // Get type
                 Class<?> type = field.getType();
                 String typeName = type.getName();
-
-                // Check if the field is in the exception list
-                if (exceptionFieldNames.contains(field.getName())) continue;
 
                 // Check if the field is an array or list
                 if (typeName.startsWith("[L") || typeName.equals(ArrayList.class.getName()) || typeName.equals(List.class.getName())) {
