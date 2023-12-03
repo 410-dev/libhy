@@ -1,11 +1,10 @@
 package me.hysong.libhyextended.objects;
 
 import com.google.gson.*;
+import me.hysong.libhyextended.Utils;
+import me.hysong.libhyextended.environment.SubsystemEnvironment;
 import me.hysong.libhyextended.objects.exception.DataFieldMismatchException;
-import me.hysong.libhyextended.utils.ArrayFromJsonArrayConverter;
-import me.hysong.libhyextended.utils.ArrayToJsonArrayConverter;
-import me.hysong.libhyextended.utils.JsonBeautifier;
-import me.hysong.libhyextended.utils.HashMapFromJsonObjectConverter;
+import me.hysong.libhyextended.utils.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -216,6 +215,46 @@ public abstract class DataObject implements Serializable {
                 System.out.println("Failed to import " + field.getName() + " from Json.");
                 throw new DataFieldMismatchException(e);
             }
+        }
+    }
+
+    public boolean save(String path) {
+        try {
+            StringIO.writeFileToDisk(path, toJsonString());
+            return true;
+        }catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean save(SubsystemEnvironment env, String path) {
+        try {
+            env.writeString(path, toJsonString());
+            return true;
+        }catch (Exception e) {
+            return false;
+        }
+    }
+
+    public <T extends DataObject> T load(SubsystemEnvironment env, String path, Class<T> clazz) {
+        try {
+            T obj = clazz.getDeclaredConstructor().newInstance();
+            obj.fromJsonString(env.readString(path));
+            this.fromJsonString(obj.toJsonString());
+            return obj;
+        }catch (Exception e) {
+            return null;
+        }
+    }
+
+    public <T extends DataObject> T load(String path, Class<T> clazz) {
+        try {
+            T obj = clazz.getDeclaredConstructor().newInstance();
+            obj.fromJsonString(StringIO.readFileFromDisk(path));
+            this.fromJsonString(obj.toJsonString());
+            return obj;
+        }catch (Exception e) {
+            return null;
         }
     }
 
