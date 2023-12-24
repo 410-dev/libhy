@@ -69,12 +69,21 @@ public abstract class DataObject2 implements Serializable {
      * @param typeName The type name of the object
      * @param value The value of the object
      * @param json The JsonObject to encode to
+     * @param action The action to run
+     * @param nullSafe If the encoder should encode null values. If false, it will throw error.
+     * @param nullAlternative If nullSafe is true, then this will be used instead of null
      * @return The encoded JsonObject
      */
-    private JsonObject toJsonRecursive(String label, String typeName, Object value, JsonObject json, JSONCodableAction action) {
+    private JsonObject toJsonRecursive(String label, String typeName, Object value, JsonObject json, JSONCodableAction action, boolean nullSafe, String nullAlternative) {
 
         if (verbose) System.out.println("ENCODING: " + label + " (" + typeName + ")");
         if (verbose) System.out.println(JsonBeautifier.beautify(json));
+
+        // If value is null, then we just set to null
+        if (value == null && nullSafe) {
+            json.addProperty(label, nullAlternative);
+            return json;
+        }
 
         if (typeName.equals(int.class.getName()) || typeName.equals(Integer.class.getName()))             json.addProperty(label, Integer.parseInt(value.toString()));
         else if (typeName.equals(float.class.getName()) || typeName.equals(Float.class.getName()))        json.addProperty(label, Float.parseFloat(value.toString()));
@@ -89,7 +98,7 @@ public abstract class DataObject2 implements Serializable {
         else if (typeName.equals(ArrayList.class.getName()) || typeName.equals(List.class.getName())) {
             JsonArray array = new JsonArray();
             for (Object o : (ArrayList<?>) value) {
-                JsonObject object = toJsonRecursive(label, o.getClass().getName(), o, new JsonObject(), action);
+                JsonObject object = toJsonRecursive(label, o.getClass().getName(), o, new JsonObject(), action, nullSafe, nullAlternative);
                 array.add(object.get(label));
             }
             json.add(label, array);
@@ -116,8 +125,8 @@ public abstract class DataObject2 implements Serializable {
         else if (typeName.equals(boolean[].class.getName()))                                            json.add(label, ArrayToJsonArrayConverter.convert((boolean[]) value));
         else if (typeName.equals(char[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((char[]) value));
         else if (typeName.equals(Object[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((Object[]) value));
-        else if (typeName.equals(DataObject2.class.getName()))                                           json.add(label, ((DataObject2) value).toJson(action));
-        else if (value.getClass().getSuperclass().getName().equals(DataObject2.class.getName()))         json.add(label, ((DataObject2) value).toJson(action));
+        else if (typeName.equals(DataObject2.class.getName()))                                           json.add(label, ((DataObject2) value).toJson(action, nullSafe, nullAlternative));
+        else if (value.getClass().getSuperclass().getName().equals(DataObject2.class.getName()))         json.add(label, ((DataObject2) value).toJson(action, nullSafe, nullAlternative));
         else                                                                                            json.addProperty(label, value.toString());
 
         return json;
@@ -125,20 +134,41 @@ public abstract class DataObject2 implements Serializable {
 
     /**
      * Encode the object to JsonObject with default JSONCodableAction.OBJECTIFY action.
-     * This method just calls: toJson(JSONCodableAction.OBJECTIFY)
+     * This method just calls: toJson(JSONCodableAction.OBJECTIFY, nullSafe, nullAlternative)
      * @return The encoded JsonObject
      */
     public JsonObject toJson() {
-        return toJson(JSONCodableAction.OBJECTIFY);
+        return toJson(JSONCodableAction.OBJECTIFY, true, null);
+    }
+
+    /**
+     * Encode the object to JsonObject with default JSONCodableAction.OBJECTIFY action.
+     * This method just calls: toJson(JSONCodableAction.OBJECTIFY, nullSafe, nullAlternative)
+     * @param nullAlternative This will be used instead of null if found.
+     * @return The encoded JsonObject
+     */
+    public JsonObject toJson(String nullAlternative) {
+        return toJson(JSONCodableAction.OBJECTIFY, true, nullAlternative);
+    }
+
+    /**
+     * Encode the object to JsonObject with default JSONCodableAction.OBJECTIFY action.
+     * This method just calls: toJson(JSONCodableAction.OBJECTIFY, nullSafe, nullAlternative)
+     * @return The encoded JsonObject
+     */
+    public JsonObject toJsonNotNullSafe() {
+        return toJson(JSONCodableAction.OBJECTIFY, false, null);
     }
 
     /**
      * Encode the object to JsonObject with specified action.
      * @return The encoded JsonObject
      * @param action The action to run
+     * @param nullSafe If the encoder should encode null values. If false, it will throw error.
+     * @param nullAlternative If nullSafe is true, then this will be used instead of null
      * @throws RuntimeException If the field type is not supported
      */
-    public JsonObject toJson(JSONCodableAction action) {
+    public JsonObject toJson(JSONCodableAction action, boolean nullSafe, String nullAlternative) {
         Class<?> reflectedClass = this.getClass();
 
         Field[] declaredFields = reflectedClass.getDeclaredFields();
@@ -159,7 +189,7 @@ public abstract class DataObject2 implements Serializable {
                 Class<?> type = field.getType();
                 String typeName = type.getName();
 
-                toJsonRecursive(field.getName(), typeName, field.get(this), json, action);
+                toJsonRecursive(field.getName(), typeName, field.get(this), json, action, nullSafe, nullAlternative);
             }catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException("Failed to export '" + field.getName() + "' (" + field.getType() + ") to Json.");
@@ -244,11 +274,28 @@ public abstract class DataObject2 implements Serializable {
 
 
     /**
-     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY))
+     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY, true, null))
      * @return The encoded JsonObject with beautified Json
      */
     public String toJsonString() {
-        return JsonBeautifier.beautify(toJson(JSONCodableAction.STRINGIFY));
+        return JsonBeautifier.beautify(toJson(JSONCodableAction.STRINGIFY, true, null));
+    }
+
+    /**
+     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY, true, alternative))
+     * @param alternative This will be used instead of null if found.
+     * @return The encoded JsonObject with beautified Json
+     */
+    public String toJsonString(String alternative) {
+        return JsonBeautifier.beautify(toJson(JSONCodableAction.STRINGIFY, true, alternative));
+    }
+
+    /**
+     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY, false, null))
+     * @return The encoded JsonObject with beautified Json
+     */
+    public String toJsonStringNotNullSafe() {
+        return JsonBeautifier.beautify(toJsonNotNullSafe());
     }
 
     /**
@@ -256,7 +303,24 @@ public abstract class DataObject2 implements Serializable {
      * @return The encoded JsonObject with non-beautified Json
      */
     public String toString() {
-        return toJson(JSONCodableAction.STRINGIFY).toString();
+        return toJson(JSONCodableAction.STRINGIFY, true, null).toString();
+    }
+
+    /**
+     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY, true, alternative))
+     * @param alternative This will be used instead of null if found.
+     * @return The encoded JsonObject with non-beautified Json
+     */
+    public String toString(String alternative) {
+        return toJson(JSONCodableAction.STRINGIFY, true, alternative).toString();
+    }
+
+    /**
+     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY, false, null))
+     * @return The encoded JsonObject with non-beautified Json
+     */
+    public String toStringNotNullSafe() {
+        return toJsonNotNullSafe().toString();
     }
 
     /**
