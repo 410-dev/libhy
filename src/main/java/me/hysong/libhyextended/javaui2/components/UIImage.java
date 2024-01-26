@@ -56,8 +56,22 @@ public class UIImage extends UIElement {
     }
 
     public UIImage resize(float width, float height) {
+//        super.resize(width, height);
+//        panel.setSize(super.c.getWidth(), super.c.getHeight());
+//        render();
+//        return this;
+
         super.resize(width, height);
-        panel.setSize(super.c.getWidth(), super.c.getHeight());
+        int newWidth = (int)(originalImg.getWidth() * width);
+        int newHeight = (int)(originalImg.getHeight() * height);
+
+        // Resize the image
+        currentImg = originalImg.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+
+        // Update the size of the panel
+        panel.setSize(newWidth, newHeight);
+
+        // Re-render the image
         render();
         return this;
     }
