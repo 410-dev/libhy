@@ -13,4 +13,8 @@ public class DataFieldMismatchException extends Exception {
     public DataFieldMismatchException(Exception e) {
         super(e);
     }
+
+    public DataFieldMismatchException(Exception e, String type, String expected, String actual) {
+        super("Data field mismatch: " + type + " expected: " + expected + " actual: " + actual, e);
+    }
 }
