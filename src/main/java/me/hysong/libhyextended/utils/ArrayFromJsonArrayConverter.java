@@ -3,6 +3,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import me.hysong.libhyextended.objects.DataObject;
+import me.hysong.libhyextended.objects.dataobj2.DataObject2;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -85,6 +86,12 @@ public class ArrayFromJsonArrayConverter {
         } else if (type.isAssignableFrom(String.class)) {
             return buildNewArrayList(jsonArray, type);
         } else if (type.isAssignableFrom(Object.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(DataObject2.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(DataObject.class)) {
+            return buildNewArrayList(jsonArray, type);
+        } else if (type.isAssignableFrom(ArrayList.class)) {
             return buildNewArrayList(jsonArray, type);
         }
 
