@@ -9,13 +9,17 @@ import me.hysong.libhyextended.utils.StringIO;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 @Getter
 @Setter
-public class SubsystemEnvironment {
+public class SubsystemEnvironment implements Serializable {
+
+    @Serial private static final long serialVersionUID = 1L;
 
     public static final String defaultName = "default-hermes-subsystem";
     private final String hostOS;
