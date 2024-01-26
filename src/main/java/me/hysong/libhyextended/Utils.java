@@ -1,5 +1,6 @@
 package me.hysong.libhyextended;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
@@ -1122,5 +1123,61 @@ public class Utils {
         }
 
         return true;
+    }
+
+    /**
+     * Substitute in-line variable. For example, if value has "This is ${name}", then the variable name is "name". The given pairs has to be "name=John". The result should be "This is John".
+     * @param line Line to substitute
+     * @param pairs Pairs of variable and value
+     */
+    public static String inlineVariableSubstitutionPrefix = "${";
+    public static String inlineVariableSubstitutionSuffix = "}";
+    public static String inlineVariableSubstitution(String line, String ... pairs) {
+        for (String kvpair : pairs) {
+            try {
+                String key = kvpair.split("=")[0];
+                String value = kvpair.split("=")[1];
+                line = line.replace(inlineVariableSubstitutionPrefix + key + inlineVariableSubstitutionSuffix, value);
+            } catch (Exception e) {
+                System.err.println("Invalid key-value pair: " + kvpair);
+            }
+        }
+        return line;
+    }
+
+    /**
+     * Pull variables in in-line variable string. For example, if value has "This is ${name}", then the variable name is "name". The result should be "name".
+     * @param line Line to pull variables from
+     * @return Array of variables
+     */
+    public static String[] pullVariablesFromInlineVariableSubstitution(String line) {
+        List<String> variables = new ArrayList<>();
+        Pattern pattern = Pattern.compile("\\$\\{([^}]*)\\}");
+        Matcher matcher = pattern.matcher(line);
+        while (matcher.find()) {
+            variables.add(matcher.group(1));
+        }
+        return variables.toArray(new String[0]);
+    }
+
+    /**
+     * Simply put thread to sleep for a specified amount of time.
+     * @param millis Milliseconds to sleep
+     * @param silent If true, do not print stack trace if interrupted
+     */
+    public static void sleep(long millis, boolean silent) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            if (!silent) e.printStackTrace();
+        }
+    }
+
+    /**
+     * Simply put thread to sleep for a specified amount of time.
+     * @param millis Milliseconds to sleep
+     */
+    public static void sleep(long millis) {
+        sleep(millis, false);
     }
 }
