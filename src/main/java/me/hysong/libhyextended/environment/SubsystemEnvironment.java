@@ -59,17 +59,17 @@ public class SubsystemEnvironment {
         boolean generateSuccess;
         switch (hostOS) {
             case "mac" -> {
-                if (root == null) this.root = "/Users/" + System.getProperty("user.name") + "/Library/Application Support/Hermes Subsystem/" + name;
+                if (root == null) this.root = System.getProperty("user.home") + "/Library/Application Support/Hermes Subsystem/" + name;
                 if (new File(this.root).isDirectory()) generateSuccess = true;
                 else generateSuccess = new File(this.root).mkdirs();
             }
             case "linux" -> {
-                if (root == null) this.root = "/home/" + System.getProperty("user.name") + "/.local/share/hermes-subsystem/" + name;
+                if (root == null) this.root = System.getProperty("user.home") + "/.local/share/hermes-subsystem/" + name;
                 if (new File(this.root).isDirectory()) generateSuccess = true;
                 else generateSuccess = new File(this.root).mkdirs();
             }
             case "windows" -> {
-                if (root == null) this.root = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Hermes Subsystem\\" + name;
+                if (root == null) this.root = System.getProperty("user.home") + "\\AppData\\Local\\Hermes Subsystem\\" + name;
                 if (new File(this.root).isDirectory()) generateSuccess = true;
                 else generateSuccess = new File(this.root).mkdirs();
             }
@@ -77,7 +77,7 @@ public class SubsystemEnvironment {
         }
 
         if (!generateSuccess) {
-            throw new RuntimeException("Failed to generate subsystem environment.");
+            throw new RuntimeException("Failed to generate subsystem environment at " + root);
         }
 
         return this;
