@@ -58,4 +58,45 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <!-- ... your existing build configuration ... -->
+
+        <!-- Add this after your plugins section -->
+        <plugins>
+            <!-- ... your existing plugins ... -->
+
+            <!-- Add the antrun plugin to execute Ant tasks -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version> <!-- Use the latest version -->
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+
+                                <!-- Delete any existing unsigned JAR to avoid conflicts -->
+                                <delete file="${project.basedir}/../libhy-unsigned.jar"/>
+
+                                <!-- Copy the original JAR to a new unsigned JAR, excluding signature files -->
+                                <zip destfile="${project.basedir}/../libhy-unsigned.jar">
+                                    <zipfileset src="${project.basedir}/../libhy.jar" excludes="META-INF/*.SF META-INF/*.DSA META-INF/*.RSA"/>
+                                </zip>
+
+                                <!-- Remove the original JAR -->
+                                <delete file="${project.basedir}/../libhy.jar"/>
+
+                                <!-- Rename the unsigned JAR to the original name -->
+                                <move file="${project.basedir}/../libhy-unsigned.jar" tofile="${project.basedir}/../libhy.jar"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
