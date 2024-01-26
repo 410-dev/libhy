@@ -1,23 +1,23 @@
 package me.hysong.libhyextended.objects.dataobj2;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.hysong.libhyextended.Utils;
 import me.hysong.libhyextended.environment.SubsystemEnvironment;
 import me.hysong.libhyextended.objects.exception.DataFieldMismatchException;
-import me.hysong.libhyextended.utils.ArrayFromJsonArrayConverter;
-import me.hysong.libhyextended.utils.ArrayToJsonArrayConverter;
-import me.hysong.libhyextended.utils.JsonBeautifier;
-import me.hysong.libhyextended.utils.StringIO;
+import me.hysong.libhyextended.utils.*;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class DataObject2 implements Serializable {
 
@@ -108,7 +108,18 @@ public abstract class DataObject2 implements Serializable {
             for (Object o : ((HashMap<?, ?>) value).keySet()) {
                 JsonObject object = new JsonObject();
                 object.addProperty("key", o == null ? null : o.toString());
-                object.addProperty("value", ((HashMap<?, ?>) value).get(o) == null ? null : ((HashMap<?, ?>) value).get(o).toString());
+                HashMap<?, ?> hashMap = (HashMap<?, ?>) value;
+                if (hashMap.get(o).getClass().getSuperclass().getName().equals(DataObject2.class.getName())) {
+                    object.add("value", toJsonRecursive(label, hashMap.get(o).getClass().getName(), hashMap.get(o), new JsonObject(), action, nullSafe, nullAlternative));
+                }else{
+//                    object.addProperty("value", ((HashMap<?, ?>) value).get(o) == null ? null : ((HashMap<?, ?>) value).get(o).toString());
+                   // If the value is numeric (float, int, etc) then add it as a number
+                    if (hashMap.get(o) instanceof Number) {
+                        object.addProperty("value", (Number) hashMap.get(o));
+                    }else{
+                        object.addProperty("value", hashMap.get(o) == null ? null : hashMap.get(o).toString());
+                    }
+                }
                 array.add(object);
             }
             json.add(label, array);
@@ -127,7 +138,31 @@ public abstract class DataObject2 implements Serializable {
         else if (typeName.equals(Object[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((Object[]) value));
         else if (typeName.equals(DataObject2.class.getName()))                                           json.add(label, ((DataObject2) value).toJson(action, nullSafe, nullAlternative));
         else if (value.getClass().getSuperclass().getName().equals(DataObject2.class.getName()))         json.add(label, ((DataObject2) value).toJson(action, nullSafe, nullAlternative));
-        else                                                                                            json.addProperty(label, value.toString());
+//        else                                                                                            json.addProperty(label, value.toString());
+        else {
+            // Look through all the superclasses. If it is a DataObject2, then we can encode it.
+            boolean isSuperclassDataObject2 = false;
+            Class<?> superclass = value.getClass().getSuperclass();
+            while (superclass != null) {
+                if (superclass.getName().equals(DataObject2.class.getName())) {
+                    isSuperclassDataObject2 = true;
+                    break;
+                }
+                superclass = superclass.getSuperclass();
+            }
+
+            // If it is a DataObject2, then we can encode it.
+            if (isSuperclassDataObject2) {
+                json.add(label, ((DataObject2) value).toJson(action, nullSafe, nullAlternative));
+            }else{
+                // If the value is numeric (float, int, etc) then add it as a number
+                if (value instanceof Number) {
+                    json.addProperty(label, (Number) value);
+                }else{
+                    json.addProperty(label, value.toString());
+                }
+            }
+        }
 
         return json;
     }
@@ -353,6 +388,10 @@ public abstract class DataObject2 implements Serializable {
 //            Annotation[] annotations = field.getAnnotations();
 //            if (!isHasAnnotationForCodable(JSONCodableAction.PARSE, field)) continue;
 
+            String fieldName = field.getName();
+            String expectedType = field.getType().getName();
+            String actualType = null;
+
             try {
 
                 // Check if it has name
@@ -364,6 +403,7 @@ public abstract class DataObject2 implements Serializable {
                 // Get type
                 Class<?> type = field.getType();
                 String typeName = type.getName();
+                actualType = typeName;
 
                 if (verbose) System.out.println("(" + typeName + ")");
 
@@ -394,11 +434,27 @@ public abstract class DataObject2 implements Serializable {
                         }
                     }
 
-//                } else if (typeName.equals(HashMap.class.getName())) {
-//                    JsonArray jsonObject = o.get(name).getAsJsonArray();
-//                    Class<?> genericType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1];
-//                    field.set(this, HashMapFromJsonObjectConverter.hashMap(jsonObject, genericType));
+                } else if (typeName.equals(HashMap.class.getName())) {
+                    JsonArray jsonObject = o.get(name).getAsJsonArray();
+                    Class<?> genericType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1];
+                    try {
+                        field.set(this, HashMapFromJsonObjectConverter.hashMap(jsonObject, genericType));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("Hashmap import failed");
+                        throw new DataFieldMismatchException(e, fieldName, expectedType, actualType);
+                    }
                 }
+                    // Dont use the code above!
+//                else if (typeName.equals(HashMap.class.getName())) {
+//                    JsonArray jsonArray = o.get(name).getAsJsonArray();
+//                    HashMap<?, ?> hashMap = new HashMap<>();
+//                    for (int i = 0; i < jsonArray.size(); i++) {
+//                        JsonObject object = jsonArray.get(i).getAsJsonObject();
+//
+//                    }
+//                    field.set(this, hashMap);
+//                }
                 else if (typeName.startsWith("[L")) {
                     JsonArray jsonArray = o.get(name).getAsJsonArray();
                     field.set(this, ArrayFromJsonArrayConverter.array(jsonArray, type));
@@ -408,12 +464,45 @@ public abstract class DataObject2 implements Serializable {
                     Class<?> genericType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                     field.set(this, ArrayFromJsonArrayConverter.arrayList(jsonArray, genericType));
                 }
-                else System.out.println("Unknown type: " + typeName + " (SuperClass: " + type.getSuperclass().getName() + ", DataObject2 assignable: "+ type.isAssignableFrom(DataObject2.class) + ")");
+//                else System.out.println("Unknown type: " + typeName + " (SuperClass: " + type.getSuperclass().getName() + ", DataObject2 assignable: "+ type.isAssignableFrom(DataObject2.class) + ")");
+                else {
+                    // Look through all the superclasses. If it is a DataObject2, then we can decode it.
+                    boolean isSuperclassDataObject2 = false;
+                    Class<?> superclass = type.getSuperclass();
+                    while (superclass != null) {
+                        if (superclass.getName().equals(DataObject2.class.getName())) {
+                            isSuperclassDataObject2 = true;
+                            break;
+                        }
+                        superclass = superclass.getSuperclass();
+                    }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Failed to import " + field.getName() + " from Json.");
-                throw new DataFieldMismatchException(e);
+                    // If it is a DataObject2, then we can decode it.
+                    if (isSuperclassDataObject2) {
+                        boolean successfullyInstantiated = false;
+                        Class<?> instantiatedClass = null;
+                        while (successfullyInstantiated) {
+                            try {
+                                instantiatedClass = Class.forName(typeName);
+                                DataObject2 DataObject2 = (DataObject2) instantiatedClass.getDeclaredConstructor().newInstance();
+                                DataObject2.fromJson(o.get(name).getAsJsonObject());
+                                field.set(this, DataObject2);
+                                successfullyInstantiated = true;
+                            } catch (ClassNotFoundException e) {
+//                                e.printStackTrace();
+                                typeName = typeName.substring(0, typeName.length() - 1);
+                                System.out.println("Trying to instantiate " + typeName);
+                            }
+                        }
+                    }else{
+                        System.err.println("Unknown type: " + typeName + " (SuperClass: " + type.getSuperclass().getName() + ", DataObject2 assignable: "+ type.isAssignableFrom(DataObject2.class) + ")");
+                    }
+                }
+
+            } catch (DataFieldMismatchException e) {
+                throw new DataFieldMismatchException(e, fieldName, expectedType, actualType);
+            } catch (JsonProcessingException | InstantiationException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
             }
         }
     }
