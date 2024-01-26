@@ -774,6 +774,7 @@ public class Utils {
      */
     public static Object max(List<?> list) {
         // Check instance of first element
+        if (list.isEmpty()) return 0;
         if (list.get(0) instanceof Integer) {
             return (int) max(list.stream().mapToInt(i -> (int) i).toArray());
         } else if (list.get(0) instanceof Long) {
@@ -798,6 +799,7 @@ public class Utils {
      */
     public static Object min(List<?> list) {
         // Check instance of first element
+        if (list.isEmpty()) return 0;
         if (list.get(0) instanceof Integer) {
             return (int) min(list.stream().mapToInt(i -> (int) i).toArray());
         } else if (list.get(0) instanceof Long) {
@@ -849,6 +851,7 @@ public class Utils {
      */
     public static Object avg(List<?> list) {
         // Check instance of first element
+        if (list.isEmpty()) return 0;
         if (list.get(0) instanceof Integer) {
             return (int) sum(list) / list.size();
         } else if (list.get(0) instanceof Long) {
@@ -873,6 +876,7 @@ public class Utils {
      */
     public static Object median(List<?> list) {
         // Check instance of first element
+        if (list.isEmpty()) return 0;
         if (list.get(0) instanceof Integer) {
             return (int) median(list.stream().mapToInt(i -> (int) i).toArray());
         } else if (list.get(0) instanceof Long) {
@@ -897,6 +901,7 @@ public class Utils {
      */
     public static Object mode(List<?> list) {
         // Check instance of first element
+        if (list.isEmpty()) return 0;
         if (list.get(0) instanceof Integer) {
             return (int) mode(list.stream().mapToInt(i -> (int) i).toArray());
         } else if (list.get(0) instanceof Long) {
