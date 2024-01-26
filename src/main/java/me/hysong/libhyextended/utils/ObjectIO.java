@@ -1,5 +1,7 @@
 package me.hysong.libhyextended.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.*;
 
 /**
@@ -14,10 +16,14 @@ public class ObjectIO {
      * @throws IOException
      */
     public static void write(Object object, File saveTo) throws IOException {
-        try (FileOutputStream fileOut = new FileOutputStream(saveTo);
-             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+        try (FileOutputStream fileOut = new FileOutputStream(saveTo); ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
             objectOut.writeObject(object);
         }
+    }
+
+    public static void writeAsJson(Object object, File saveTo) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(saveTo, object);
     }
 
     /**
@@ -29,5 +35,10 @@ public class ObjectIO {
      */
     public static Object read(File readFrom) throws IOException, ClassNotFoundException {
         return new ObjectInputStream(new FileInputStream(readFrom)).readObject();
+    }
+
+    public static Object readFromJson(File readFrom, Class<?> clazz) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(readFrom, clazz);
     }
 }
