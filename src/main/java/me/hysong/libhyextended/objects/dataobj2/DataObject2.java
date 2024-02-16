@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.Setter;
 import me.hysong.libhyextended.Utils;
 import me.hysong.libhyextended.environment.SubsystemEnvironment;
 import me.hysong.libhyextended.objects.exception.DataFieldMismatchException;
@@ -22,11 +23,14 @@ import java.util.Objects;
 public abstract class DataObject2 implements Serializable {
 
     private boolean verbose = false;
+    @Setter private static boolean verboseByDefault = false;
 
     /**
      * Creates a new DataObject2
      */
-    public DataObject2() {}
+    public DataObject2() {
+        verbose = verboseByDefault;
+    }
 
     /**
      * Creates a new DataObject2 with verbose logging
