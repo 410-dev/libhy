@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,7 +102,7 @@ public abstract class DataObject2 implements Serializable {
         else if (value.getClass().getSuperclass().getName().equals(Enum.class.getName()))                 json.addProperty(label, value.toString());
         else if (typeName.equals(ArrayList.class.getName()) || typeName.equals(List.class.getName())) {
             JsonArray array = new JsonArray();
-            for (Object o : (ArrayList<?>) value) {
+            for (Object o : (List<?>) value) {
                 JsonObject object = toJsonRecursive(label, o.getClass().getName(), o, new JsonObject(), action, nullSafe, nullAlternative);
                 array.add(object.get(label));
             }
@@ -140,10 +141,11 @@ public abstract class DataObject2 implements Serializable {
         else if (typeName.equals(boolean[].class.getName()))                                            json.add(label, ArrayToJsonArrayConverter.convert((boolean[]) value));
         else if (typeName.equals(char[].class.getName()))                                               json.add(label, ArrayToJsonArrayConverter.convert((char[]) value));
         else if (typeName.equals(Object[].class.getName()))                                             json.add(label, ArrayToJsonArrayConverter.convert((Object[]) value));
-        else if (typeName.equals(DataObject2.class.getName()))                                           json.add(label, ((DataObject2) value).toJson(action, nullSafe, nullAlternative));
-        else if (value.getClass().getSuperclass().getName().equals(DataObject2.class.getName()))         json.add(label, ((DataObject2) value).toJson(action, nullSafe, nullAlternative));
+        else if (typeName.equals(DataObject2.class.getName()))                                           json.add(label, toJson(value.getClass(), value, action, nullSafe, nullAlternative));
+        else if (value.getClass().getSuperclass().getName().equals(DataObject2.class.getName()))         json.add(label, toJson(value.getClass(), value, action, nullSafe, nullAlternative));
 //        else                                                                                            json.addProperty(label, value.toString());
         else {
+            if (verbose) System.out.println("Unknown type: " + typeName + ". Trying to find toJson method.");
             // Look through all the superclasses. If it is a DataObject2, then we can encode it.
             boolean isSuperclassDataObject2 = false;
             Class<?> superclass = value.getClass().getSuperclass();
@@ -157,13 +159,60 @@ public abstract class DataObject2 implements Serializable {
 
             // If it is a DataObject2, then we can encode it.
             if (isSuperclassDataObject2) {
-                json.add(label, ((DataObject2) value).toJson(action, nullSafe, nullAlternative));
+                json.add(label, ((DataObject2) value).toJson(value.getClass(), value, action, nullSafe, nullAlternative));
             }else{
                 // If the value is numeric (float, int, etc) then add it as a number
                 if (value instanceof Number) {
                     json.addProperty(label, (Number) value);
                 }else{
-                    json.addProperty(label, value.toString());
+
+                    // Look through methods to see if there is a toJson method.
+                    Method[] methods = value.getClass().getDeclaredMethods();
+                    ArrayList<Method> methodsAvailable = new ArrayList<>();
+                    for (Method method : methods) {
+                        if (method.getName().equals("toJson")) {
+                            methodsAvailable.add(method);
+                            break;
+                        }
+                    }
+
+                    // toJson method not found
+                    if (methodsAvailable.isEmpty()) {
+                        json.addProperty(label, value.toString());
+                    } else {
+
+                        // Expect to have either toJson() or toJson(Class<?> reflectedClass, Object instance, JSONCodableAction action, boolean nullSafe, String nullAlternative)
+                        // The first one is higher priority.
+
+                        boolean invokeSuccess = false;
+                        for (Method m : methodsAvailable) {
+                            try {
+                                if (m.getParameterCount() == 0) {
+                                    json.add(label, (JsonObject) m.invoke(value));
+                                    invokeSuccess = true;
+                                    break;
+                                }
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                invokeSuccess = false;
+                            }
+                        }
+                        if (!invokeSuccess) {
+                            for (Method m : methodsAvailable) {
+                                try {
+                                    if (m.getParameterCount() == 5) {
+                                        json.add(label, (JsonObject) m.invoke(value, value.getClass(), value, action, nullSafe, nullAlternative));
+                                        invokeSuccess = true;
+                                        break;
+                                    }
+                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                    invokeSuccess = false;
+                                }
+                            }
+                        }
+                        if (!invokeSuccess) {
+                            throw new RuntimeException("Failed to export '" + label + "' (" + typeName + ") to Json.");
+                        }
+                    }
                 }
             }
         }
@@ -177,7 +226,17 @@ public abstract class DataObject2 implements Serializable {
      * @return The encoded JsonObject
      */
     public JsonObject toJson() {
-        return toJson(JSONCodableAction.OBJECTIFY, true, null);
+        return toJson(this.getClass(), this, JSONCodableAction.OBJECTIFY, true, null);
+    }
+
+    /**
+     * Encode the object to JsonObject with default JSONCodableAction.OBJECTIFY action.
+     * @param reflectedClass The class to reflect
+     * @param instance The instance of the class
+     * @return The encoded JsonObject
+     */
+    public JsonObject toJson(Class<?> reflectedClass, Object instance) {
+        return toJson(reflectedClass, instance, JSONCodableAction.OBJECTIFY, true, null);
     }
 
     /**
@@ -187,7 +246,7 @@ public abstract class DataObject2 implements Serializable {
      * @return The encoded JsonObject
      */
     public JsonObject toJson(String nullAlternative) {
-        return toJson(JSONCodableAction.OBJECTIFY, true, nullAlternative);
+        return toJson(this.getClass(), this, JSONCodableAction.OBJECTIFY, true, nullAlternative);
     }
 
     /**
@@ -196,39 +255,48 @@ public abstract class DataObject2 implements Serializable {
      * @return The encoded JsonObject
      */
     public JsonObject toJsonNotNullSafe() {
-        return toJson(JSONCodableAction.OBJECTIFY, false, null);
+        return toJson(this.getClass(), this, JSONCodableAction.OBJECTIFY, false, null);
     }
 
     /**
      * Encode the object to JsonObject with specified action.
      * @return The encoded JsonObject
+     * @param reflectClass The class to reflect
+     * @param instance The instance of the class
      * @param action The action to run
      * @param nullSafe If the encoder should encode null values. If false, it will throw error.
      * @param nullAlternative If nullSafe is true, then this will be used instead of null
      * @throws RuntimeException If the field type is not supported
      */
-    public JsonObject toJson(JSONCodableAction action, boolean nullSafe, String nullAlternative) {
-        Class<?> reflectedClass = this.getClass();
+    public JsonObject toJson(Class<?> reflectClass, Object instance, JSONCodableAction action, boolean nullSafe, String nullAlternative) {
 
-        Field[] declaredFields = reflectedClass.getDeclaredFields();
+        Field[] declaredFields = reflectClass.getDeclaredFields();
 
         JsonObject json = new JsonObject();
 
-        boolean isTypeHasCodableAnnotation = hasAnnotationForCodable(action, reflectedClass.getAnnotations());
+        boolean isTypeHasCodableAnnotation = hasAnnotationForCodable(action, reflectClass.getAnnotations());
 
         for (Field field : declaredFields) {
             field.setAccessible(true);
-            if (!isTypeHasCodableAnnotation && !hasAnnotationForCodable(action, field.getAnnotations())) continue;
+            if (!isTypeHasCodableAnnotation && !hasAnnotationForCodable(action, field.getAnnotations())) {
+                if (verbose) System.out.println("Skipping: " + field.getName() + " (" + field.getType().getName() + ") because it has no @JSONCodable annotation.");
+                continue;
+            }
 
             // Check if field has @NotJSONCodable annotation
-            if (hasAnnotationForNotCodable(field.getAnnotations())) continue;
+            if (hasAnnotationForNotCodable(field.getAnnotations())) {
+                if (verbose) System.out.println("Skipping: " + field.getName() + " (" + field.getType().getName() + ") because it has @NotJSONCodable annotation.");
+                continue;
+            }
+
+            if (verbose) System.out.println("ENCODING FIELD: " + field.getName() + " (" + field.getType().getName() + ")");
 
             try {
                 // Get type
                 Class<?> type = field.getType();
                 String typeName = type.getName();
 
-                toJsonRecursive(field.getName(), typeName, field.get(this), json, action, nullSafe, nullAlternative);
+                toJsonRecursive(field.getName(), typeName, field.get(instance), json, action, nullSafe, nullAlternative);
             }catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException("Failed to export '" + field.getName() + "' (" + field.getType() + ") to Json.");
@@ -317,7 +385,17 @@ public abstract class DataObject2 implements Serializable {
      * @return The encoded JsonObject with beautified Json
      */
     public String toJsonString() {
-        return JsonBeautifier.beautify(toJson(JSONCodableAction.STRINGIFY, true, null));
+        return JsonBeautifier.beautify(toJson(this.getClass(), this, JSONCodableAction.STRINGIFY, true, null));
+    }
+
+    /**
+     * Encode the object to JsonObject, then converts it to a String (Runs toJson(JSONCodableAction.STRINGIFY, true, null))
+     * @param reflectClass The class to reflect
+     * @param instance The instance of the class
+     * @return The encoded JsonObject with beautified Json
+     */
+    public String toJsonString(Class<?> reflectClass, Object instance) {
+        return JsonBeautifier.beautify(toJson(reflectClass, instance, JSONCodableAction.STRINGIFY, true, null));
     }
 
     /**
@@ -326,7 +404,7 @@ public abstract class DataObject2 implements Serializable {
      * @return The encoded JsonObject with beautified Json
      */
     public String toJsonString(String alternative) {
-        return JsonBeautifier.beautify(toJson(JSONCodableAction.STRINGIFY, true, alternative));
+        return JsonBeautifier.beautify(toJson(this.getClass(), this, JSONCodableAction.STRINGIFY, true, alternative));
     }
 
     /**
@@ -342,7 +420,7 @@ public abstract class DataObject2 implements Serializable {
      * @return The encoded JsonObject with non-beautified Json
      */
     public String toString() {
-        return toJson(JSONCodableAction.STRINGIFY, true, null).toString();
+        return toJson(this.getClass(), this, JSONCodableAction.STRINGIFY, true, null).toString();
     }
 
     /**
@@ -351,7 +429,7 @@ public abstract class DataObject2 implements Serializable {
      * @return The encoded JsonObject with non-beautified Json
      */
     public String toString(String alternative) {
-        return toJson(JSONCodableAction.STRINGIFY, true, alternative).toString();
+        return toJson(this.getClass(), this, JSONCodableAction.STRINGIFY, true, alternative).toString();
     }
 
     /**
@@ -395,6 +473,9 @@ public abstract class DataObject2 implements Serializable {
             String fieldName = field.getName();
             String expectedType = field.getType().getName();
             String actualType = null;
+
+            // if field name is serialVersionUID, skip
+            if (fieldName.equals("serialVersionUID")) continue;
 
             try {
 
@@ -682,4 +763,5 @@ public abstract class DataObject2 implements Serializable {
 
         return true;
     }
+
 }
