@@ -56,6 +56,18 @@
             <artifactId>mariadb-java-client</artifactId>
             <version>3.1.4</version>
         </dependency>
+        <!-- ZXing core -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+        <!-- ZXing Java SE extensions -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.4.1</version>
+        </dependency>
     </dependencies>
 
     <build>
