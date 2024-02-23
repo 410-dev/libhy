@@ -31,6 +31,8 @@ public class RSACryptography {
      *
      * @param algorithmInBits the key size in bits. Acceptable values are any number greater than or equal to 512.
      * @return An array containing the Base64 encoded public and private keys.
+     *    [0]: Public key - Encryption key
+     *    [1]: Private key - Decryption key
      * @throws IllegalArgumentException if an unsupported key size is provided.
      */
     public static String[] generateRSAKey(int algorithmInBits) {
@@ -55,6 +57,8 @@ public class RSACryptography {
      * Generates an RSA key pair with a default size of 512 bits.
      *
      * @return An array containing the Base64 encoded public and private keys.
+     *      [0]: Public key - Encryption key
+     *      [1]: Private key - Decryption key
      */
     public static String[] generateRSAKey() {
         return generateRSAKey(512);
@@ -124,7 +128,6 @@ public class RSACryptography {
 
     /**
      * Decrypts the RSA private key using a password.
-     *
      * @param encryptedPrivateKey  the encrypted RSA private key.
      * @param password             the password to derive the decryption key.
      * @return The decrypted private key.
