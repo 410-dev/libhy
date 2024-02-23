@@ -20,4 +20,18 @@ public class ReadPOSTBody {
         }
         return map;
     }
+
+    public static String readFromHttpServletRequestAsRawString(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            BufferedReader reader = request.getReader();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
 }
