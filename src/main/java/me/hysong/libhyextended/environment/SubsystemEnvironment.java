@@ -31,6 +31,14 @@ public class SubsystemEnvironment implements Serializable {
     private boolean useSandbox = false;
     private HashMap<String, String> environmentVariables = new HashMap<>();
 
+    public static SubsystemEnvironment byName(String name) {
+        return new SubsystemEnvironment(name, null);
+    }
+
+    public static SubsystemEnvironment byRoot(String root) {
+        return new SubsystemEnvironment(root);
+    }
+
     public SubsystemEnvironment(String name, String root) {
         this();
         this.root = root;
@@ -85,6 +93,30 @@ public class SubsystemEnvironment implements Serializable {
         }
 
         return this;
+    }
+
+    public boolean doExtend(String path) {
+        if (new File(realpath(path)).getAbsolutePath().startsWith(root)) {
+            if (!new File(realpath(path)).isDirectory()) {
+                mkdirs(path);
+            }
+            root = new File(realpath(path)).getAbsolutePath();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public SubsystemEnvironment extend(String path) {
+        if (new File(realpath(path)).getAbsolutePath().startsWith(root)) {
+            if (!new File(realpath(path)).isDirectory()) {
+                mkdirs(path);
+            }
+            String newRoot = new File(realpath(path)).getAbsolutePath();
+            return byRoot(newRoot);
+        } else {
+            return null;
+        }
     }
 
     public String realpath(String path) {
