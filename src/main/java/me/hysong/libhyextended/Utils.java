@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1019,6 +1020,18 @@ public class Utils {
     }
 
     /**
+     * Get a parameter from arguments. For example, if the arguments are ["-p", "1234", "-h", "localhost"], and the parameter is "-p", then "1234" will be returned. If the parameter is not found, then the default value will be returned.
+     * @param args Arguments to search
+     * @param parameter Parameter to search for
+     * @param defaultValue Default value to return if parameter is not found
+     * @return Value of parameter
+     */
+    public static String getParameterFromArguments(String[] args, String parameter, String defaultValue) {
+        String value = getParameterFromArguments(args, parameter);
+        return value == null ? defaultValue : value;
+    }
+
+    /**
      * Get the middle number between two numbers
      * @param start Start number
      * @param end End number
@@ -1179,5 +1192,42 @@ public class Utils {
      */
     public static void sleep(long millis) {
         sleep(millis, false);
+    }
+
+    /**
+     * Generate a random string of a specified length and pattern
+     * @param length Length of string
+     * @param alphaLows Include lower case alphabets
+     *                  (abcdefghijklmnopqrstuvwxyz)
+     * @param alphaUps Include upper case alphabets
+     *                  (ABCDEFGHIJKLMNOPQRSTUVWXYZ)
+     * @param numbers Include numbers
+     *                  (0123456789)
+     * @param specialCharacters Include special characters
+     *                  (!@#$%^&*()+=`~/\][';?.,)
+     * @return Random string
+     */
+    public static String randomString(int length, boolean alphaLows, boolean alphaUps, boolean numbers, boolean specialCharacters) {
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random(); // Single Random instance
+
+        String[] alphaLowsStr = "abcdefghijklmnopqrstuvwxyz".split("");
+        String[] alphaUpsStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        String[] numbersStr = "0123456789".split("");
+        String[] specialCharactersStr = "!@#$%^&*()+=`~/\\][';?.,".split("");
+
+        // Combine all characters into one array if multiple categories are selected
+        String combinedChars = "";
+        if (alphaLows) combinedChars += String.join("", alphaLowsStr);
+        if (alphaUps) combinedChars += String.join("", alphaUpsStr);
+        if (numbers) combinedChars += String.join("", numbersStr);
+        if (specialCharacters) combinedChars += String.join("", specialCharactersStr);
+        String[] allChars = combinedChars.split("");
+
+        for (int i = 0; i < length; i++) {
+            sb.append(allChars[random.nextInt(allChars.length)]);
+        }
+
+        return sb.toString();
     }
 }
